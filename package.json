@@ -1,0 +1,16 @@
+{
+	"name": "digjudgebot",
+	"type": "module",
+	"version": "1.0.0",
+	"main": "sport.js",
+	"scripts": {
+		"start": "nodemon sport.js && nodemon ./tgterminal.js"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"node-cron": "^3.0.3",
+		"node-telegram-bot-api": "^0.63.0",
+		"save": "^2.9.0"
+	}
+}
