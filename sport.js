@@ -5,14 +5,13 @@ import fs from "fs";
 import { sendDataAboutButton } from "./tgterminal.js";
 import { sendDataAboutError } from "./tgterminal.js";
 import { sendDataAboutAction } from "./tgterminal.js";
-import { match } from "assert";
 
 const TOKENs = [
 	"6654105779:AAEnCdIzKS_cgJUg4rMY8yNM3LPP5iZ-d_A",
-	"6305745212:6858989950:AAH5tFy09SfJcD71mJoa4sB4lHEyWzw8nrQ",
+	"6858989950:AAH5tFy09SfJcD71mJoa4sB4lHEyWzw8nrQ",
 ];
 
-const TOKEN = TOKENs[0]; // 1 - оригинал
+const TOKEN = TOKENs[1]; // 1 - оригинал
 const bot = new TelegramBot(TOKEN, { polling: true });
 
 const qu1z3xId = "923690530";
@@ -154,7 +153,10 @@ let rndNum, textToSayHello, rndId;
 //? ФУНКЦИИ
 
 async function menuHome(chatId, exit = true) {
+	const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+
 	try {
+		dataAboutUser.userAction = "menuHome";
 		rndNum = Math.floor(Math.random() * menuHomeText.length);
 
 		if (exit) {
@@ -173,7 +175,7 @@ async function menuHome(chatId, exit = true) {
 						],
 						[
 							{ text: "Мотивация 🦅", callback_data: "motivation" },
-							{ text: "Профиль 👤", callback_data: "info" },
+							{ text: "Настройки ⚙️", callback_data: "options" },
 						],
 						// [{ text: "📗 Судейский журнал 🧮", callback_data: "judgeMenu" }],
 					],
@@ -193,7 +195,7 @@ async function menuHome(chatId, exit = true) {
 							],
 							[
 								{ text: "Мотивация 🦅", callback_data: "motivation" },
-								{ text: "Профиль 👤", callback_data: "info" },
+								{ text: "Настройки ⚙️", callback_data: "options" },
 							],
 
 							// [{ text: "📗 Судейский журнал 🧮", callback_data: "judgeMenu" }],
@@ -213,8 +215,9 @@ async function menuHome(chatId, exit = true) {
 
 async function netsporta(chatId) {
 	try {
+		// Но у тебя есть возможность создать <b>собственный матч по своим правилам,</b> нажав на раздел <i><b>"Свой ⚙️"!</b></i> 😉
 		await bot.editMessageText(
-			`Помошник в <b><i>раннем доступе</i></b>🥴, и к сожалению доступны <b>не все</b> виды спорта! ☹️\n\nНо у тебя есть возможность создать <b>собственный матч по своим правилам,</b> нажав на раздел <i><b>"Свой ⚙️"!</b></i> 😉\n\n<b>• Остались вопросы? Пиши @qu1z3x</b>`,
+			`Помошник в <b><i>раннем доступе</i></b>🥴, и к сожалению доступны <b>не все</b> виды спорта! ☹️\n\n<b>Есть идеи? Пиши @qu1z3x</b>`,
 			{
 				parse_mode: "html",
 				chat_id: chatId,
@@ -239,8 +242,10 @@ async function GameScore(chatId, historyIsClear = false) {
 	const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
 	try {
-		bot.editMessageText(
-			`<b>5️⃣:9️⃣ <i>Счёт очков</i> 1️⃣:3️⃣\n\nЧто сегодня мы будем судить? 🧐</b>${
+		dataAboutUser.userAction = "GameScore";
+
+		await bot.editMessageText(
+			`<b>5️⃣:9️⃣ <i>Счёт очков</i> 1️⃣:3️⃣\n\nЧто сегодня будем судить? 🧐</b>${
 				scoreHistoryButtons.length != 0
 					? `\n\n<a href ="https://t.me/${BotName}/?start=clearAllMatchHistory">Завершить незаконченые</a>`
 					: `${
@@ -261,24 +266,27 @@ async function GameScore(chatId, historyIsClear = false) {
 						[
 							{
 								text: "🏀",
-								callback_data: "basketballScores",
+								callback_data: "CreationNewMatchWithSportNum1",
 							},
 							{
 								text: "🏐",
-								callback_data: "volleyballScores",
+								callback_data: "CreationNewMatchWithSportNum2",
 							},
 							{
 								text: "⚽",
-								callback_data: "footballScores",
+								callback_data: "CreationNewMatchWithSportNum3",
 							},
 							{
 								text: "🏓",
-								callback_data: "pinpongScores",
+								callback_data: "CreationNewMatchWithSportNum4",
 							},
 						],
 						[
 							{ text: "⬅️В меню", callback_data: "exit" },
-							{ text: "Свой ⚙️", callback_data: "exit" },
+							// {
+							// 	text: "Свой ⚙️",
+							// 	callback_data: "CreationNewMatchWithSportNum5",
+							// },
 							{ text: "А где? ☹️", callback_data: "netsporta" },
 						],
 					],
@@ -290,19 +298,19 @@ async function GameScore(chatId, historyIsClear = false) {
 	}
 }
 
-async function GameScoreCounting(
+async function CreationNewMatch(
 	chatId,
+	matchId,
 	sportNum = null,
-	matchId = null,
-	customCo1Score = null,
-	customCo2Score = null
+	processOfNamingC1 = false,
+	processOfNamingC2 = false,
+	processOfAddScoreTarget = false,
+	matchIdForCopySettigs = null
 ) {
-	const dataAboutUser = usersData.find((obj) => obj.chatId === chatId);
-	let co1Score,
-		co2Score,
-		dataAboutMatchText = "";
+	const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+
 	try {
-		if (sportNum != null) {
+		if (!matchId) {
 			do {
 				rndId = Math.floor(Math.random() * 1000000000);
 			} while (
@@ -311,111 +319,262 @@ async function GameScoreCounting(
 				) &&
 				dataAboutUser.matchesData.length != 0
 			);
-			// dataAboutUser.customOptionsForMatches.MAXquarterOfGame
 			await dataAboutUser.matchesData.push({
+				matchId: rndId,
 				sportNum: sportNum,
 				score: "0:0",
-				scoresInQuarters: [],
+				scoreTarget:
+					sportNum == 1
+						? 100
+						: sportNum == 2
+						? 25
+						: sportNum == 3
+						? 3
+						: sportNum == 4
+						? 11
+						: sportNum == 5
+						? 0
+						: null,
 				quarterOfGame: 1,
-				MAXquarterOfGame:
-					sportNum == 1 || sportNum == 2 || sportNum == 3 || sportNum == 4
-						? 4
-						: "",
+				startDate: null,
+				startTime: null,
+				timeOfAllGame: "",
+				nameForCom1: "Синие",
+				nameForCom2: "Красные",
+				scoresInQuarters: [],
+				matchIsСreated: false,
 				isOver: false,
-				matchId: rndId,
 			});
 
-			[co1Score, co2Score] = dataAboutUser.matchesData[
-				dataAboutUser.matchesData.length - 1
-			].score
-				.split(":")
-				.map(Number);
-
 			matchId = rndId;
-		} else if (!sportNum) {
-			[co1Score, co2Score] = dataAboutUser.matchesData
-				.find((obj) => obj.matchId == matchId)
-				.score.split(":")
-				.map(Number);
 		}
-		console.log(dataAboutUser.matchesData);
 
-		dataAboutUser.currentMatchId = dataAboutUser.matchesData.find(
+		let dataAboutMatch = dataAboutUser.matchesData.find(
 			(obj) => obj.matchId == matchId
-		).matchId;
+		);
+
+		if (
+			matchIdForCopySettigs != null &&
+			dataAboutUser.matchesData.find(
+				(obj) => obj.matchId == matchIdForCopySettigs
+			)
+		) {
+			let dataAboutMatchForCopySettings = dataAboutUser.matchesData.find(
+				(obj) => obj.matchId == matchIdForCopySettigs
+			);
+
+			dataAboutMatch.sportNum = dataAboutMatchForCopySettings.sportNum;
+			dataAboutMatch.nameForCom1 = dataAboutMatchForCopySettings.nameForCom1;
+			dataAboutMatch.nameForCom2 = dataAboutMatchForCopySettings.nameForCom2;
+			dataAboutMatch.scoreTarget = dataAboutMatchForCopySettings.scoreTarget;
+		}
+
+		dataAboutUser.currentMatchId = matchId;
+		dataAboutUser.userAction = "CreationNewMatch";
+
+		await bot.editMessageText(
+			`<b><i>${
+				dataAboutMatch.sportNum == 1
+					? `🏀 Баскетбол`
+					: `${
+							dataAboutMatch.sportNum == 2
+								? `🏐 Волейбол`
+								: `${
+										dataAboutMatch.sportNum == 3
+											? `⚽ Футбол`
+											: `${
+													dataAboutMatch.sportNum == 4
+														? `🏓 Пинг-Понг`
+														: `${
+																dataAboutMatch.sportNum == 5
+																	? `⚙️ Кастомный`
+																	: ""
+														  }`
+											  }`
+								  }`
+					  }`
+			}</i> • Параметры ⚙️\n\nКоманды:</b>\n\n${
+				dataAboutMatch.nameForCom1 && dataAboutMatch.nameForCom1 != "Синие"
+					? `<a href = "https://t.me/${BotName}/?start=resetNameForCommand1InCreationNewMatchWithId${matchId}">🔄️</a> ${dataAboutMatch.nameForCom1}`
+					: `${
+							processOfNamingC1
+								? `<a href="https://t.me/${BotName}/?start=CreationNewMatchWithId${matchId}">❌</a> ...`
+								: `<a href="https://t.me/${BotName}/?start=nameCommand1InCreationNewMatchWithId${matchId}">✏️</a> Синие`
+					  }`
+			}  :  ${
+				dataAboutMatch.nameForCom2 &&
+				dataAboutMatch.nameForCom2 != "Красные"
+					? `${dataAboutMatch.nameForCom2} <a href = "https://t.me/${BotName}/?start=resetNameForCommand2InCreationNewMatchWithId${matchId}">🔄️</a>`
+					: `${
+							processOfNamingC2
+								? `... <a href="https://t.me/${BotName}/?start=CreationNewMatchWithId${matchId}">❌</a>`
+								: `Красные <a href="https://t.me/${BotName}/?start=nameCommand2InCreationNewMatchWithId${matchId}">✏️</a>`
+					  }`
+			}\n\n<b>Ограничения:</b>\n\nПо счету: ${
+				dataAboutMatch.scoreTarget == 0 && !processOfAddScoreTarget
+					? `<b>Нет <a href="https://t.me/${BotName}/?start=addScoreTargetInCreationNewMatchWithId${matchId}">✏️</a></b>`
+					: processOfAddScoreTarget
+					? `<b>... <a href="https://t.me/${BotName}/?start=CreationNewMatchWithId${matchId}">❌</a></b>`
+					: `<b>${dataAboutMatch.scoreTarget} ${
+							(dataAboutMatch.scoreTarget >= 5 &&
+								dataAboutMatch.scoreTarget <= 20) ||
+							(dataAboutMatch.scoreTarget % 10 >= 5 &&
+								dataAboutMatch.scoreTarget % 10 <= 9) ||
+							dataAboutMatch.scoreTarget % 10 == 0
+								? "очков"
+								: `${
+										dataAboutMatch.scoreTarget % 10 == 1
+											? "очко"
+											: `${
+													dataAboutMatch.scoreTarget % 10 >= 2 &&
+													dataAboutMatch.scoreTarget % 10 <= 4
+														? "очка"
+														: ``
+											  }`
+								  }`
+					  }</b> <a href="https://t.me/${BotName}/?start=addScoreTargetInCreationNewMatchWithId${matchId}">✏️</a>`
+			}`,
+			{
+				parse_mode: "html",
+				chat_id: chatId,
+				message_id: usersData.find((obj) => obj.chatId == chatId).messageId,
+				disable_web_page_preview: true,
+				reply_markup: {
+					inline_keyboard: [
+						[
+							{
+								text: "⬅️Назад ",
+								callback_data: `${
+									dataAboutMatch.matchIsСreated
+										? `matchWithId${matchId}`
+										: "gameScore"
+								}`,
+							},
+							{
+								text: `${
+									dataAboutMatch.matchIsСreated ? "" : "Начать ✅"
+								}`,
+								callback_data: `matchWithId${matchId}`,
+							},
+						],
+					],
+				},
+			}
+		);
+	} catch (error) {
+		console.log(error);
+		sendDataAboutError(chatId, `${String(error)}`);
+	}
+}
+
+async function GameScoreCounting(
+	chatId,
+	matchId = null,
+	customCo1Score = null,
+	customCo2Score = null,
+	moreAboutQuarters = false
+) {
+	const dataAboutUser = usersData.find((obj) => obj.chatId === chatId);
+
+	let co1Score,
+		co2Score,
+		dataAboutMatchText = "",
+		dataAboutMatch;
+
+	try {
+		dataAboutMatch = dataAboutUser.matchesData.find(
+			(obj) => obj.matchId == matchId
+		);
+
+		if (dataAboutUser.userAction == "CreationNewMatch") {
+			dataAboutMatch.startDate = new Date();
+			dataAboutMatch.startTime = new Date().toLocaleTimeString("ru-RU", {
+				hour12: false,
+				hour: "2-digit",
+				minute: "2-digit",
+				timeZone: "Europe/Moscow",
+			});
+			dataAboutMatch.matchIsСreated = true;
+
+			console.log("time is update");
+		}
+
+		dataAboutUser.userAction = "GameScoreCounting";
+
+		[co1Score, co2Score] = dataAboutMatch.score.split(":").map(Number);
+
+		dataAboutUser.currentMatchId = dataAboutMatch.matchId;
 
 		co1Score = customCo1Score != null ? customCo1Score : co1Score;
 		co2Score = customCo2Score != null ? customCo2Score : co2Score;
 
 		if (customCo1Score != null || customCo2Score != null) {
-			dataAboutUser.matchesData.find(
-				(obj) => obj.matchId == matchId
-			).score = `${co1Score}:${co2Score}`;
+			dataAboutMatch.score = `${parseInt(co1Score)} : ${parseInt(co2Score)}`;
 		}
 
-		if (
-			dataAboutUser.matchesData.find((obj) => obj.matchId == matchId)
-				.scoresInQuarters
-		) {
+		if (dataAboutMatch.scoresInQuarters) {
 			let i = 0;
-			dataAboutUser.matchesData
-				.find((obj) => obj.matchId == matchId)
-				.scoresInQuarters.forEach((score) => {
-					i++;
-					dataAboutMatchText += `<b>${i}-й сегмент</b>\nСчет:  <b>${score}</b>\n\n`;
-				});
+			dataAboutMatch.scoresInQuarters.forEach((score) => {
+				let [s1, s2] = score.split(":").map(Number);
+				i++;
+				dataAboutMatchText += `<b>• ${i}-й сегмент</b>\nСчет:  <b>${s1} : ${s2}</b>\n\n`;
+			});
 		}
 
-		bot.editMessageText(
+		await bot.editMessageText(
 			`<b><i>${
-				dataAboutUser.matchesData.find((obj) => obj.matchId == matchId)
-					.sportNum == 1
-					? `🏀 Баскетбол • <code>${
-							dataAboutUser.matchesData.find(
-								(obj) => obj.matchId == matchId
-							).matchId
-					  }</code> ⛹️`
+				dataAboutMatch.sportNum == 1
+					? `🏀 Баскетбол • <code>${dataAboutMatch.matchId}</code> ⛹️`
 					: `${
-							dataAboutUser.matchesData.find(
-								(obj) => obj.matchId == matchId
-							).sportNum == 2
-								? `🏐 Волейбол • <code>${
-										dataAboutUser.matchesData.find(
-											(obj) => obj.matchId == matchId
-										).matchId
-								  }</code> 🏃`
+							dataAboutMatch.sportNum == 2
+								? `🏐 Волейбол • <code>${dataAboutMatch.matchId}</code> 🏃`
 								: `${
-										dataAboutUser.matchesData.find(
-											(obj) => obj.matchId == matchId
-										).sportNum == 3
-											? `⚽ Футбол • <code>${
-													dataAboutUser.matchesData.find(
-														(obj) => obj.matchId == matchId
-													).matchId
-											  }</code> 🏃`
+										dataAboutMatch.sportNum == 3
+											? `⚽ Футбол • <code>${dataAboutMatch.matchId}</code> 🏃`
 											: `${
-													dataAboutUser.matchesData.find(
-														(obj) => obj.matchId == matchId
-													).sportNum == 4
-														? `🏓 Пинг-Понг • <code>${
-																dataAboutUser.matchesData.find(
-																	(obj) =>
-																		obj.matchId == matchId
-																).matchId
-														  }</code> 🎾`
-														: ""
+													dataAboutMatch.sportNum == 4
+														? `🏓 Пинг-Понг • <code>${dataAboutMatch.matchId}</code> 🎾`
+														: `${
+																dataAboutMatch.sportNum == 5
+																	? `⚙️ Кастомный  • <code>${dataAboutMatch.matchId}</code> ⚙️`
+																	: ""
+														  }`
 											  }`
 								  }`
 					  }`
-			} </i>\n\nДанные об игре:</b>\n\n${dataAboutMatchText}<b>${
-				dataAboutUser.matchesData.find((obj) => obj.matchId == matchId)
-					.quarterOfGame
-			}-й сегмент</b>\nСчет:  <b>${co1Score} : ${co2Score}\n\nНе теряй внимательность! 😉</b>`,
+			} \n\nДанные об игре:</i>\n\n${
+				co1Score > co2Score
+					? `<u>${dataAboutMatch.nameForCom1}</u>`
+					: `${dataAboutMatch.nameForCom1}`
+			} ${numberToEmoji(co1Score)}  :  ${numberToEmoji(co2Score)} ${
+				co2Score > co1Score
+					? `<u>${dataAboutMatch.nameForCom2}</u>`
+					: `${dataAboutMatch.nameForCom2}`
+			}\n\n</b>${
+				moreAboutQuarters
+					? `<blockquote><b><i>Сегменты:\n\n</i>${dataAboutMatchText}• ${
+							dataAboutMatch.quarterOfGame
+					  }-й сегмент\nСчет:  ${co1Score} : ${co2Score}\n\n</b>${
+							dataAboutMatch.quarterOfGame > 1
+								? `<a href="https://t.me/${BotName}/?start=moreAboutQuartersHideInCreationNewMatchWithId${matchId}">Скрыть</a>\n`
+								: ""
+					  }</blockquote>`
+					: `<blockquote><b><i>Сегменты:\n\n</i>${
+							dataAboutMatch.quarterOfGame
+					  }-й сегмент</b>\nСчет:  <b>${co1Score} : ${co2Score}</b>\n${
+							dataAboutMatch.quarterOfGame > 1
+								? `<a href="https://t.me/${BotName}/?start=moreAboutQuartersShowInCreationNewMatchWithId${matchId}">Подробнее..</a>\n`
+								: ""
+					  }</blockquote>`
+			}Начало: <b>в ${
+				dataAboutMatch.startTime
+			}\n\nНе теряй внимательность! 😉</b>`,
 			{
 				parse_mode: "html",
 				chat_id: chatId,
 				message_id: usersData.find((obj) => obj.chatId === chatId)
 					.messageId,
+				disable_web_page_preview: true,
 				reply_markup: {
 					inline_keyboard: [
 						[
@@ -424,11 +583,7 @@ async function GameScoreCounting(
 								callback_data: `upScore1WithId${matchId}`,
 							},
 							{
-								text: `${
-									dataAboutUser.matchesData.find(
-										(obj) => obj.matchId == matchId
-									).quarterOfGame
-								}-й`,
+								text: `${dataAboutMatch.quarterOfGame}-й`,
 								callback_data: `addQuarterWithId${matchId}`,
 							},
 							{
@@ -462,7 +617,10 @@ async function GameScoreCounting(
 									co1Score > 0 ? `downScore1WithId${matchId}` : "-"
 								}`,
 							},
-							{ text: "🕰️", callback_data: "-" },
+							{
+								text: "⚙️",
+								callback_data: `optionsForMatchWithId${matchId}`,
+							},
 							{
 								text: `${co2Score > 0 ? `⬇️` : "🚫"}`,
 								callback_data: `${
@@ -473,10 +631,12 @@ async function GameScoreCounting(
 						[
 							{
 								text: "⬅️Назад",
-								callback_data: `exitingTheMatchWithId${matchId}`,
+								callback_data: `gameScore`,
 							},
 							{
-								text: "Завершить❌",
+								text: `${
+									co1Score != 0 || co2Score != 0 ? "Завершить❌" : ""
+								}`,
 								callback_data: `endOfGameWithId${matchId}`,
 							},
 						],
@@ -484,7 +644,6 @@ async function GameScoreCounting(
 				},
 			}
 		);
-		console.log(dataAboutUser);
 	} catch (error) {
 		console.log(error);
 	}
@@ -509,19 +668,717 @@ function numberToEmoji(number) {
 		.join("");
 }
 
-async function endOfGame(chatId, sportNum) {
+async function endOfGame(chatId, matchId, moreAboutQuarters = false) {
 	const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+	const dataAboutMatch = dataAboutUser.matchesData.find(
+		(obj) => obj.matchId == matchId
+	);
+
+	let co1Score,
+		co2Score,
+		dataAboutMatchText = "";
 
 	try {
-		bot.editMessageText(`<b></b>`, {
-			parse_mode: "html",
-			chat_id: chatId,
-			message_id: usersData.find((obj) => obj.chatId == chatId).messageId,
-			disable_web_page_preview: true,
-			reply_markup: {
-				inline_keyboard: [[{ text: "", callback_data: "" }]],
-			},
+		dataAboutUser.userAction = "endOfGame";
+
+		[co1Score, co2Score] = dataAboutMatch.score.split(":").map(Number);
+		if (!dataAboutMatch.isOver) {
+			dataAboutMatch.scoresInQuarters.push(`${co1Score}:${co2Score}`);
+
+			dataAboutMatch.isOver = true;
+		}
+
+		if (dataAboutMatch.timeOfAllGame == "") {
+			dataAboutMatch.timeOfAllGame = new Date(
+				Math.floor((new Date() - dataAboutMatch.startDate) / 1000) * 1000
+			)
+				.toISOString()
+				.substr(14, 5);
+		}
+
+		if (dataAboutMatch.scoresInQuarters && moreAboutQuarters) {
+			let i = 0;
+			dataAboutMatch.scoresInQuarters.forEach((score) => {
+				let [s1, s2] = score.split(":").map(Number);
+				i++;
+				dataAboutMatchText += `\n\n<b>• ${i}-й сегмент</b>\nСчет:  <b>${s1} : ${s2}</b>`;
+			});
+		}
+
+		await bot.editMessageText(
+			`<b><i>${
+				dataAboutMatch.sportNum == 1
+					? "🏀"
+					: `${
+							dataAboutMatch.sportNum == 2
+								? "🏐"
+								: `${
+										dataAboutMatch.sportNum == 3
+											? "⚽"
+											: `${
+													dataAboutMatch.sportNum == 4
+														? "🏓"
+														: `${
+																dataAboutMatch.sportNum == 5
+																	? "⚙️"
+																	: ``
+														  }`
+											  }`
+								  }`
+					  }`
+			} Игра окончена</i> ❌\n\n${numberToEmoji(co1Score)} : ${numberToEmoji(
+				co2Score
+			)}\n\n${
+				co1Score == co2Score
+					? "🤷‍♂️ Ничья 🤷 \n"
+					: co1Score > co2Score
+					? `${dataAboutMatch.nameForCom1} - ${co1Score}🥇`
+					: co1Score < co2Score
+					? `${dataAboutMatch.nameForCom2} - ${co2Score}🥇`
+					: ``
+			}\n${
+				co1Score == co2Score
+					? ""
+					: co1Score > co2Score
+					? `${
+							dataAboutMatch.nameForCom2
+					  } - ${co2Score}🥈\n\n</b>Отрыв: <b>${co1Score - co2Score} ${
+							(co1Score - co2Score >= 5 && co1Score - co2Score <= 20) ||
+							(parseInt(co1Score - co2Score) % 10 >= 5 &&
+								parseInt(co1Score - co2Score) % 10 <= 9)
+								? "очков"
+								: `${
+										(co1Score - co2Score) % 10 == 1
+											? "очко"
+											: `${
+													(co1Score - co2Score) % 10 >= 2 &&
+													(co1Score - co2Score) % 10 <= 4
+														? "очка"
+														: ``
+											  }`
+								  }`
+					  }\n`
+					: co1Score < co2Score
+					? `${
+							dataAboutMatch.nameForCom1
+					  } - ${co1Score}🥈\n\n</b>Отрыв: <b>${co2Score - co1Score} ${
+							(co2Score - co1Score >= 5 && co2Score - co1Score <= 20) ||
+							(parseInt(co2Score - co1Score) % 10 >= 5 &&
+								parseInt(co2Score - co1Score) % 10 <= 9)
+								? "очков"
+								: `${
+										(co2Score - co1Score) % 10 == 1
+											? "очко"
+											: `${
+													(co2Score - co1Score) % 10 >= 2 &&
+													(co2Score - co1Score) % 10 <= 4
+														? "очка"
+														: ``
+											  }`
+								  }`
+					  }\n`
+					: ``
+			}</b>Начало: <b>в ${dataAboutMatch.startTime}</b>\nДлительность: <b>${
+				dataAboutMatch.timeOfAllGame
+			}</b>${
+				moreAboutQuarters
+					? `\n<blockquote>Сегментов: <b>${dataAboutMatch.quarterOfGame} - <a href="https://t.me/${BotName}/?start=moreAboutQuartersHideInEndOfGameWithId${matchId}">cкрыть</a>${dataAboutMatchText}</b></blockquote>\n\n<b>Id матча:</b> <code>${matchId}</code>`
+					: `<blockquote>Сегментов: <b>${dataAboutMatch.quarterOfGame} - <a href="https://t.me/${BotName}/?start=moreAboutQuartersShowInEndOfGameWithId${matchId}">подробнее</a></b></blockquote>`
+			}`,
+			{
+				parse_mode: "html",
+				chat_id: chatId,
+				message_id: usersData.find((obj) => obj.chatId == chatId).messageId,
+				disable_web_page_preview: true,
+				reply_markup: {
+					inline_keyboard: [
+						[
+							{
+								text: `${
+									dataAboutMatch.sportNum == 1
+										? "🏀"
+										: `${
+												dataAboutMatch.sportNum == 2
+													? "🏐"
+													: `${
+															dataAboutMatch.sportNum == 3
+																? "⚽"
+																: `${
+																		dataAboutMatch.sportNum ==
+																		4
+																			? "🏓"
+																			: `${
+																					dataAboutMatch.sportNum ==
+																					5
+																						? "⚙️"
+																						: ``
+																			  }`
+																  }`
+													  }`
+										  }`
+								} Реванш 🔄️`,
+								callback_data: `copySettingsFromMatchWithId${dataAboutMatch.matchId}`,
+							},
+						],
+						[
+							{
+								text: "⬅️Назад",
+								callback_data: `gameScore`,
+							},
+
+							{ text: "История 💾", callback_data: "historyOfMatches" },
+						],
+					],
+				},
+			}
+		);
+	} catch (error) {
+		console.log(error);
+		sendDataAboutError(chatId, `${String(error)}`);
+	}
+}
+
+async function historyOfMatches(chatId, sportNumForHistory = 0) {
+	const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+	try {
+		let historyOfMatchesText = "";
+
+		switch (sportNumForHistory) {
+			case 0:
+				if (dataAboutUser.matchesData.filter((obj) => obj.isOver)) {
+					historyOfMatchesText = `<b>Все матчи:\n\n</b>`;
+					dataAboutUser.matchesData
+						.filter((obj) => obj.isOver)
+						.forEach((matchData) => {
+							let [co1Score, co2Score] = matchData.score
+								.split(":")
+								.map(Number);
+
+							historyOfMatchesText += `${
+								matchData.sportNum == 1
+									? "🏀 Баскетбол"
+									: `${
+											matchData.sportNum == 2
+												? "🏐 Волейбол"
+												: `${
+														matchData.sportNum == 3
+															? "⚽ Футбол"
+															: `${
+																	matchData.sportNum == 4
+																		? "🏓 Пинг-понг"
+																		: `${
+																				matchData.sportNum ==
+																				5
+																					? "⚙️ Кастомный"
+																					: ``
+																		  }`
+															  }`
+												  }`
+									  }`
+							} • ${matchData.startDate.getDate()}.${
+								matchData.startDate.getMonth() + 1
+							}.${matchData.startDate
+								.getFullYear()
+								.toString()
+								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
+								matchData.quarterOfGame
+							} сегм.</b>\n<b><a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
+								matchData.matchId
+							}">О матче</a> • <a href="https://t.me/${BotName}/?start=copySettingsFromMatchWithId${
+								matchData.matchId
+							}">Повторить</a></b>\n\n`;
+						});
+				}
+
+				break;
+			case 1:
+				if (
+					dataAboutUser.matchesData.filter(
+						(obj) => obj.isOver && obj.sportNum == 1
+					)
+				) {
+					historyOfMatchesText = `<b>Баскетбольные матчи:\n\n</b>`;
+					dataAboutUser.matchesData
+						.filter((obj) => obj.isOver && obj.sportNum == 1)
+						.forEach((matchData) => {
+							let [co1Score, co2Score] = matchData.score
+								.split(":")
+								.map(Number);
+
+							historyOfMatchesText += `🏀 Баскетбол • ${matchData.startDate.getDate()}.${
+								matchData.startDate.getMonth() + 1
+							}.${matchData.startDate
+								.getFullYear()
+								.toString()
+								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
+								matchData.quarterOfGame
+							} сегм.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
+								matchData.matchId
+							}">О матче</a> • <a href="https://t.me/${BotName}/?start=copySettingsFromMatchWithId${
+								matchData.matchId
+							}">Повторить</a></b>\n\n`;
+						});
+				}
+				break;
+			case 2:
+				if (
+					dataAboutUser.matchesData.filter(
+						(obj) => obj.isOver && obj.sportNum == 2
+					)
+				) {
+					historyOfMatchesText = `<b>Волейбольные матчи:\n\n</b>`;
+					dataAboutUser.matchesData
+						.filter((obj) => obj.isOver && obj.sportNum == 2)
+						.forEach((matchData) => {
+							let [co1Score, co2Score] = matchData.score
+								.split(":")
+								.map(Number);
+
+							historyOfMatchesText += `🏐 Волейбол • ${matchData.startDate.getDate()}.${
+								matchData.startDate.getMonth() + 1
+							}.${matchData.startDate
+								.getFullYear()
+								.toString()
+								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
+								matchData.quarterOfGame
+							} сегм.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
+								matchData.matchId
+							}">О матче</a> • <a href="https://t.me/${BotName}/?start=copySettingsFromMatchWithId${
+								matchData.matchId
+							}">Повторить</a></b>\n\n`;
+						});
+				}
+				break;
+			case 3:
+				if (
+					dataAboutUser.matchesData.filter(
+						(obj) => obj.isOver && obj.sportNum == 3
+					)
+				) {
+					historyOfMatchesText = `<b>Футбольные матчи:\n\n</b>`;
+					dataAboutUser.matchesData
+						.filter((obj) => obj.isOver && obj.sportNum == 3)
+						.forEach((matchData) => {
+							let [co1Score, co2Score] = matchData.score
+								.split(":")
+								.map(Number);
+
+							historyOfMatchesText += `⚽ Футбол • ${matchData.startDate.getDate()}.${
+								matchData.startDate.getMonth() + 1
+							}.${matchData.startDate
+								.getFullYear()
+								.toString()
+								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
+								matchData.quarterOfGame
+							} сегм.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
+								matchData.matchId
+							}">О матче</a> • <a href="https://t.me/${BotName}/?start=copySettingsFromMatchWithId${
+								matchData.matchId
+							}">Повторить</a></b>\n\n`;
+						});
+				}
+				break;
+			case 4:
+				if (
+					dataAboutUser.matchesData.filter(
+						(obj) => obj.isOver && obj.sportNum == 4
+					)
+				) {
+					historyOfMatchesText = `<b>Теннисные матчи:\n\n</b>`;
+					dataAboutUser.matchesData
+						.filter((obj) => obj.isOver && obj.sportNum == 4)
+						.forEach((matchData) => {
+							let [co1Score, co2Score] = matchData.score
+								.split(":")
+								.map(Number);
+
+							historyOfMatchesText += `🏓 Пинг-понг • ${matchData.startDate.getDate()}.${
+								matchData.startDate.getMonth() + 1
+							}.${matchData.startDate
+								.getFullYear()
+								.toString()
+								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
+								matchData.quarterOfGame
+							} сегм.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
+								matchData.matchId
+							}">О матче</a> • <a href="https://t.me/${BotName}/?start=copySettingsFromMatchWithId${
+								matchData.matchId
+							}">Повторить</a></b>\n\n`;
+						});
+				}
+				break;
+			case 5:
+				if (
+					dataAboutUser.matchesData.filter(
+						(obj) => obj.isOver && obj.sportNum == 5
+					)
+				) {
+					historyOfMatchesText = `<b>Кастомные матчи:\n\n</b>`;
+					dataAboutUser.matchesData
+						.filter((obj) => obj.isOver && obj.sportNum == 5)
+						.forEach((matchData) => {
+							let [co1Score, co2Score] = matchData.score
+								.split(":")
+								.map(Number);
+
+							historyOfMatchesText += `⚙️ Кастомный • ${matchData.startDate.getDate()}.${
+								matchData.startDate.getMonth() + 1
+							}.${matchData.startDate
+								.getFullYear()
+								.toString()
+								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
+								matchData.quarterOfGame
+							} сегм.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
+								matchData.matchId
+							}">О матче</a> • <a href="https://t.me/${BotName}/?start=copySettingsFromMatchWithId${
+								matchData.matchId
+							}">Повторить</a></b>\n\n`;
+						});
+				}
+				break;
+		}
+
+		console.log(dataAboutUser.matchesData.filter((obj) => obj.isOver));
+
+		await bot.editMessageText(
+			`<b><i>⌛ История матчей 💾</i></b>\n\n${
+				historyOfMatchesText
+					? `${historyOfMatchesText}Всего: <b>${
+							sportNumForHistory == 0
+								? `${
+										dataAboutUser.matchesData.filter(
+											(obj) => obj.isOver
+										).length
+								  } ${
+										(dataAboutUser.matchesData.filter(
+											(obj) => obj.isOver
+										).length >= 5 &&
+											dataAboutUser.matchesData.filter(
+												(obj) => obj.isOver
+											).length <= 20) ||
+										(dataAboutUser.matchesData.filter(
+											(obj) => obj.isOver
+										).length %
+											10 >=
+											5 &&
+											dataAboutUser.matchesData.filter(
+												(obj) => obj.isOver
+											).length %
+												10 <=
+												9) ||
+										dataAboutUser.matchesData.filter(
+											(obj) => obj.isOver
+										).length %
+											10 ==
+											0
+											? "игр"
+											: `${
+													dataAboutUser.matchesData.filter(
+														(obj) => obj.isOver
+													).length %
+														10 ==
+													1
+														? "игра"
+														: `${
+																dataAboutUser.matchesData.filter(
+																	(obj) => obj.isOver
+																).length %
+																	10 >=
+																	2 &&
+																dataAboutUser.matchesData.filter(
+																	(obj) => obj.isOver
+																).length %
+																	10 <=
+																	4
+																	? "игры"
+																	: ``
+														  }`
+											  }`
+								  }`
+								: `${
+										dataAboutUser.matchesData.filter(
+											(obj) =>
+												obj.isOver &&
+												obj.sportNum == sportNumForHistory
+										).length
+								  } ${
+										(dataAboutUser.matchesData.filter(
+											(obj) =>
+												obj.isOver &&
+												obj.sportNum == sportNumForHistory
+										).length >= 5 &&
+											dataAboutUser.matchesData.filter(
+												(obj) =>
+													obj.isOver &&
+													obj.sportNum == sportNumForHistory
+											).length <= 20) ||
+										(dataAboutUser.matchesData.filter(
+											(obj) =>
+												obj.isOver &&
+												obj.sportNum == sportNumForHistory
+										).length %
+											10 >=
+											5 &&
+											dataAboutUser.matchesData.filter(
+												(obj) =>
+													obj.isOver &&
+													obj.sportNum == sportNumForHistory
+											).length %
+												10 <=
+												9) ||
+										dataAboutUser.matchesData.filter(
+											(obj) =>
+												obj.isOver &&
+												obj.sportNum == sportNumForHistory
+										).length %
+											10 ==
+											0
+											? "игр"
+											: `${
+													dataAboutUser.matchesData.filter(
+														(obj) =>
+															obj.isOver &&
+															obj.sportNum == sportNumForHistory
+													).length %
+														10 ==
+													1
+														? "игра"
+														: `${
+																dataAboutUser.matchesData.filter(
+																	(obj) =>
+																		obj.isOver &&
+																		obj.sportNum ==
+																			sportNumForHistory
+																).length %
+																	10 >=
+																	2 &&
+																dataAboutUser.matchesData.filter(
+																	(obj) =>
+																		obj.isOver &&
+																		obj.sportNum ==
+																			sportNumForHistory
+																).length %
+																	10 <=
+																	4
+																	? "игры"
+																	: ``
+														  }`
+											  }`
+								  }`
+					  }</b>`
+					: `История матчей пуста! 🏝️`
+			}`,
+			{
+				parse_mode: "html",
+				chat_id: chatId,
+				message_id: usersData.find((obj) => obj.chatId == chatId).messageId,
+				disable_web_page_preview: true,
+				reply_markup: {
+					inline_keyboard: [
+						[
+							{
+								text: `${
+									sportNumForHistory == 0 ? `• 🏀🏐⚽🏓 •` : `🏀🏐⚽🏓`
+								}`,
+								callback_data: `${
+									sportNumForHistory == 0
+										? `-`
+										: `historyOfMatchesWithSportNumForHistory0`
+								}`,
+							},
+						],
+						[
+							{
+								text: `${
+									dataAboutUser.matchesData.filter(
+										(obj) => obj.isOver && obj.sportNum == 1
+									).length > 0
+										? `${sportNumForHistory == 1 ? `• 🏀 •` : `🏀`}`
+										: ``
+								}`,
+								callback_data: `${
+									sportNumForHistory == 1
+										? `-`
+										: `historyOfMatchesWithSportNumForHistory1`
+								}`,
+							},
+							{
+								text: `${
+									dataAboutUser.matchesData.filter(
+										(obj) => obj.isOver && obj.sportNum == 2
+									).length > 0
+										? `${sportNumForHistory == 2 ? `• 🏐 •` : `🏐`}`
+										: ``
+								}`,
+								callback_data: `${
+									sportNumForHistory == 2
+										? `-`
+										: `historyOfMatchesWithSportNumForHistory2`
+								}`,
+							},
+							{
+								text: `${
+									dataAboutUser.matchesData.filter(
+										(obj) => obj.isOver && obj.sportNum == 3
+									).length > 0
+										? `${sportNumForHistory == 3 ? `• ⚽ •` : `⚽`}`
+										: ``
+								}`,
+								callback_data: `${
+									sportNumForHistory == 3
+										? `-`
+										: `historyOfMatchesWithSportNumForHistory3`
+								}`,
+							},
+							{
+								text: `${
+									dataAboutUser.matchesData.filter(
+										(obj) => obj.isOver && obj.sportNum == 4
+									).length > 0
+										? `${sportNumForHistory == 4 ? `• 🏓 •` : `🏓`}`
+										: ``
+								}`,
+								callback_data: `${
+									sportNumForHistory == 4
+										? `-`
+										: `historyOfMatchesWithSportNumForHistory4`
+								}`,
+							},
+							// {
+							// 	text: `${sportNumForHistory == 5 ? `• ⚙️ •` : `⚙️`}`,
+							// 	callback_data: `${
+							// 		sportNumForHistory == 5
+							// 			? `-`
+							// 			: `historyOfMatchesWithSportNumForHistory5`
+							// 	}`,
+							// },
+						],
+						[
+							{ text: "⬅️Назад", callback_data: "options" },
+							{ text: "Обновить🔄️", callback_data: "historyOfMatches" },
+						],
+					],
+				},
+			}
+		);
+	} catch (error) {
+		console.log(error);
+		sendDataAboutError(chatId, `${String(error)}`);
+	}
+}
+
+async function moreAboutMatch(chatId, matchId) {
+	const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+	const dataAboutMatch = dataAboutUser.matchesData.find(
+		(obj) => obj.matchId == matchId
+	);
+
+	try {
+		let dataAboutMatchText = "";
+		let [co1Score, co2Score] = dataAboutMatch.score.split(":").map(Number);
+
+		let i = 1;
+		dataAboutMatch.scoresInQuarters.forEach((score) => {
+			let [s1, s2] = score.split(":").map(Number);
+			dataAboutMatchText += `\n\n<b>• ${i}-й сегмент</b>\nСчет:  <b>${s1} : ${s2}</b>`;
+			i++;
 		});
+
+		await bot.editMessageText(
+			`<b>ℹ️ О матче • <i>${
+				dataAboutMatch.sportNum == 1
+					? `Баскетбол 🏀`
+					: `${
+							dataAboutMatch.sportNum == 2
+								? `Волейбол 🏐`
+								: `${
+										dataAboutMatch.sportNum == 3
+											? `Футбол ⚽`
+											: `${
+													dataAboutMatch.sportNum == 4
+														? `Пинг-Понг 🏓`
+														: `${
+																dataAboutMatch.sportNum == 5
+																	? `Кастомный ⚙️`
+																	: ""
+														  }`
+											  }`
+								  }`
+					  }`
+			}</i>\n\n${numberToEmoji(co1Score)} : ${numberToEmoji(co2Score)}\n\n${
+				co1Score == co2Score
+					? "🤷‍♂️ Ничья 🤷 \n"
+					: co1Score > co2Score
+					? `${dataAboutMatch.nameForCom1} - ${co1Score}🥇`
+					: co1Score < co2Score
+					? `${dataAboutMatch.nameForCom2} - ${co2Score}🥇`
+					: ``
+			}\n${
+				co1Score == co2Score
+					? ""
+					: co1Score > co2Score
+					? `${
+							dataAboutMatch.nameForCom2
+					  } - ${co2Score}🥈\n\n</b>Отрыв: <b>${co1Score - co2Score} ${
+							(co1Score - co2Score >= 5 && co1Score - co2Score <= 20) ||
+							(parseInt(co1Score - co2Score) % 10 >= 5 &&
+								parseInt(co1Score - co2Score) % 10 <= 9)
+								? "очков"
+								: `${
+										(co1Score - co2Score) % 10 == 1
+											? "очко"
+											: `${
+													(co1Score - co2Score) % 10 >= 2 &&
+													(co1Score - co2Score) % 10 <= 4
+														? "очка"
+														: ``
+											  }`
+								  }`
+					  }\n`
+					: co1Score < co2Score
+					? `${
+							dataAboutMatch.nameForCom1
+					  } - ${co1Score}🥈\n\n</b>Отрыв: <b>${co2Score - co1Score} ${
+							(co2Score - co1Score >= 5 && co2Score - co1Score <= 20) ||
+							(parseInt(co2Score - co1Score) % 10 >= 5 &&
+								parseInt(co2Score - co1Score) % 10 <= 9)
+								? "очков"
+								: `${
+										(co2Score - co1Score) % 10 == 1
+											? "очко"
+											: `${
+													(co2Score - co1Score) % 10 >= 2 &&
+													(co2Score - co1Score) % 10 <= 4
+														? "очка"
+														: ``
+											  }`
+								  }`
+					  }\n`
+					: ``
+			}</b>Начало: <b>в ${dataAboutMatch.startTime}</b>\nДлительность: <b>${
+				dataAboutMatch.timeOfAllGame
+			}</b>\n<blockquote>Сегментов: <b>${
+				dataAboutMatch.quarterOfGame
+			}${dataAboutMatchText}</b></blockquote>\n\n<b>Id матча:</b> <code>${matchId}</code>
+			`,
+			{
+				parse_mode: "html",
+				chat_id: chatId,
+				message_id: usersData.find((obj) => obj.chatId == chatId).messageId,
+				disable_web_page_preview: true,
+				reply_markup: {
+					inline_keyboard: [
+						[
+							{ text: "⬅️Назад", callback_data: "historyOfMatches" },
+							{
+								text: "Повторить 🔄️",
+								callback_data: `copySettingsFromMatchWithId${dataAboutMatch.matchId}`,
+							},
+						],
+					],
+				},
+			}
+		);
 	} catch (error) {
 		console.log(error);
 		sendDataAboutError(chatId, `${String(error)}`);
@@ -557,10 +1414,12 @@ async function Motivation(chatId) {
 	}
 }
 
-async function info(chatId, firstName, userName, userId) {
+async function Options(chatId) {
+	const dataAboutUser = usersData.find((obj) => obj.chatId === chatId);
+
 	try {
 		await bot.editMessageText(
-			`<b>Твой профиль👤\n\nТвой логин: ${firstName} \n\nТвой id: ${userId}</b>`,
+			`<b>Твой профиль👤\n\nТвой логин: ${dataAboutUser.firstName} \n\nТвой id: <code>${chatId}</code></b>`,
 			{
 				parse_mode: "html",
 				chat_id: chatId,
@@ -569,7 +1428,10 @@ async function info(chatId, firstName, userName, userId) {
 				reply_markup: {
 					inline_keyboard: [
 						[{ text: "Поддержка💬", url: "https://t.me/qu1z3x" }],
-						[{ text: "⬅️Назад", callback_data: "exit" }],
+						[
+							{ text: "⬅️Назад", callback_data: "exit" },
+							{ text: "История 💾", callback_data: "historyOfMatches" },
+						],
 					],
 				},
 			}
@@ -581,16 +1443,17 @@ async function info(chatId, firstName, userName, userId) {
 
 async function start(chatId, userName) {
 	const dataAboutUser = usersData.find((obj) => obj.chatId === chatId);
+
 	try {
 		const dateNowHHNN = new Date().getHours() * 100 + new Date().getMinutes();
 		if (dateNowHHNN < 1200 && dateNowHHNN >= 600)
-			textToSayHello = "Физкульт-утра";
+			textToSayHello = "Физкульт утра";
 		else if (dateNowHHNN < 1700 && dateNowHHNN >= 1200)
-			textToSayHello = "Физкульт-дня";
+			textToSayHello = "Физкульт дня";
 		else if (dateNowHHNN < 2200 && dateNowHHNN >= 1700)
-			textToSayHello = "Физкульт-вечера";
+			textToSayHello = "Физкульт вечера";
 		else if (dateNowHHNN >= 2200 || dateNowHHNN < 600)
-			textToSayHello = "Физкульт-ночи";
+			textToSayHello = "Физкульт ночи";
 
 		await bot
 			.sendMessage(chatId, `<b>${textToSayHello}, ${userName}!</b>`, {
@@ -636,43 +1499,319 @@ async function StartAll() {
 						chatId: chatId,
 						firstName: message.from.first_name,
 						messageId: message.message_id,
-						userAction: "",
-
-						// счета
-						currentMatchId: "",
-						matchesData: [],
+						userAction: null,
+						currentMatchId: null,
+						currentSportNum: null,
+						matchesData: [
+							{
+								matchId: 781991521,
+								sportNum: "4",
+								score: "0:1",
+								scoreTarget: 11,
+								quarterOfGame: 1,
+								startDate: new Date(),
+								startTime: "11:23",
+								timeOfAllGame: "00:03",
+								nameForCom1: "Синие",
+								nameForCom2: "Красные",
+								scoresInQuarters: ["0:1"],
+								matchIsСreated: true,
+								isOver: true,
+								winningTeam: null,
+							},
+							{
+								matchId: 399671095,
+								sportNum: "4",
+								score: "0:2",
+								scoreTarget: 11,
+								quarterOfGame: 1,
+								startDate: new Date(),
+								startTime: "11:23",
+								timeOfAllGame: "00:05",
+								nameForCom1: "Синие",
+								nameForCom2: "Красные",
+								scoresInQuarters: ["0:2"],
+								matchIsСreated: true,
+								isOver: true,
+								winningTeam: null,
+							},
+							{
+								matchId: 956874531,
+								sportNum: "4",
+								score: "3883 : 88",
+								scoreTarget: 11,
+								quarterOfGame: 1,
+								startDate: new Date(),
+								startTime: "11:23",
+								timeOfAllGame: "00:13",
+								nameForCom1: "Синие",
+								nameForCom2: "Красные",
+								scoresInQuarters: ["3883:88"],
+								matchIsСreated: true,
+								isOver: true,
+								winningTeam: null,
+							},
+							{
+								matchId: 723870178,
+								sportNum: "2",
+								score: "1:2",
+								scoreTarget: 25,
+								quarterOfGame: 1,
+								startDate: new Date(),
+								startTime: "11:23",
+								timeOfAllGame: "00:03",
+								nameForCom1: "Синие",
+								nameForCom2: "Красные",
+								scoresInQuarters: ["1:2"],
+								matchIsСreated: true,
+								isOver: true,
+								winningTeam: null,
+							},
+							{
+								matchId: 789820614,
+								sportNum: "2",
+								score: "0:1",
+								scoreTarget: 25,
+								quarterOfGame: 1,
+								startDate: new Date(),
+								startTime: "11:23",
+								timeOfAllGame: "00:01",
+								nameForCom1: "Синие",
+								nameForCom2: "Красные",
+								scoresInQuarters: ["0:1"],
+								matchIsСreated: true,
+								isOver: true,
+								winningTeam: null,
+							},
+							{
+								matchId: 183307691,
+								sportNum: "2",
+								score: "0:1",
+								scoreTarget: 25,
+								quarterOfGame: 1,
+								startDate: new Date(),
+								startTime: "11:24",
+								timeOfAllGame: "00:02",
+								nameForCom1: "Синие",
+								nameForCom2: "Красные",
+								scoresInQuarters: ["0:1"],
+								matchIsСreated: true,
+								isOver: true,
+								winningTeam: null,
+							},
+							{
+								matchId: 528948115,
+								sportNum: "2",
+								score: "1:1",
+								scoreTarget: 25,
+								quarterOfGame: 1,
+								startDate: new Date(),
+								startTime: "11:24",
+								timeOfAllGame: "00:02",
+								nameForCom1: "Синие",
+								nameForCom2: "Красные",
+								scoresInQuarters: ["1:1"],
+								matchIsСreated: true,
+								isOver: true,
+								winningTeam: null,
+							},
+							{
+								matchId: 904908335,
+								sportNum: "3",
+								score: "0:1",
+								scoreTarget: 3,
+								quarterOfGame: 1,
+								startDate: new Date(),
+								startTime: "11:24",
+								timeOfAllGame: "00:02",
+								nameForCom1: "Синие",
+								nameForCom2: "Красные",
+								scoresInQuarters: ["0:1"],
+								matchIsСreated: true,
+								isOver: true,
+								winningTeam: null,
+							},
+						],
+						// прочие
 						writeco1score: false,
 						writeco2score: false,
+						writeNameForCo1: false,
+						writeNameForCo2: false,
+						writeScoreTarget: false,
 					});
 				}
 				if (dataAboutUser || text == "/start" || text == "/restart") {
+					let match;
+
+					//? Кнопки-ссылки
+
+					switch (true) {
+						case text.includes("/start moreAboutQuarters"):
+							match = text.match(
+								/^\/start moreAboutQuarters(.*)In(.*)WithId(\d+)$/
+							);
+
+							if (match[2] == "GameScoreCounting") {
+								GameScoreCounting(
+									chatId,
+									parseInt(match[3]),
+									null,
+									null,
+									match[1] == "Hide" ? false : true
+								);
+							}
+							if (match[2] == "EndOfGame") {
+								endOfGame(
+									chatId,
+									parseInt(match[3]),
+									match[1] == "Hide" ? false : true
+								);
+							}
+							break;
+						case text.includes("/start nameCommand"):
+							match = text.match(
+								/^\/start nameCommand(\d+)InCreationNewMatchWithId(\d+)$/
+							);
+
+							match[1] == 1
+								? (dataAboutUser.writeNameForCo1 = true)
+								: (dataAboutUser.writeNameForCo1 = false);
+							match[1] == 2
+								? (dataAboutUser.writeNameForCo2 = true)
+								: (dataAboutUser.writeNameForCo2 = false);
+
+							CreationNewMatch(
+								chatId,
+								match[2],
+								null,
+								match[1] == 1 ? true : false,
+								match[1] == 2 ? true : false
+							);
+
+							break;
+						case text.includes("/start CreationNewMatchWithId"):
+							match = text.match(
+								/^\/start CreationNewMatchWithId(\d+)$/
+							);
+							CreationNewMatch(chatId, match[2]);
+							break;
+						case text.includes("/start resetNameForCommand"):
+							match = text.match(
+								/^\/start resetNameForCommand(\d+)InCreationNewMatchWithId(\d+)$/
+							);
+
+							match[1] == 1
+								? (dataAboutUser.matchesData.find(
+										(obj) => obj.matchId == match[2]
+								  ).nameForCom1 = "Синие")
+								: (dataAboutUser.matchesData.find(
+										(obj) => obj.matchId == match[2]
+								  ).nameForCom2 = "Красные");
+
+							CreationNewMatch(chatId, match[2], null);
+							break;
+						case text.includes(
+							"/start addScoreTargetInCreationNewMatchWithId"
+						):
+							match = text.match(
+								/^\/start addScoreTargetInCreationNewMatchWithId(\d+)$/
+							);
+
+							dataAboutUser.writeScoreTarget = true;
+
+							CreationNewMatch(chatId, match[1], null, null, null, true);
+							break;
+
+						case text.includes("/start moreAboutMatchWithId"):
+							match = text.match(/^\/start moreAboutMatchWithId(\d+)$/);
+
+							moreAboutMatch(chatId, match[1]);
+
+							break;
+						case text.includes("/start copySettingsFromMatchWithId"):
+							match = text.match(
+								/^\/start copySettingsFromMatchWithId(\d+)$/
+							);
+
+							CreationNewMatch(
+								chatId,
+								null,
+								null,
+								null,
+								null,
+								null,
+								parseInt(match[1])
+							);
+
+							break;
+						case 1:
+							break;
+						case 1:
+							break;
+						case 1:
+							break;
+						case 1:
+							break;
+						case 1:
+							break;
+						case 1:
+							break;
+						case 1:
+							break;
+						case 1:
+							break;
+					}
+
+					if (dataAboutUser && /^\d+$/.test(text)) {
+						if (dataAboutUser.writeco1score) {
+							dataAboutUser.writeco1score = false;
+
+							GameScoreCounting(
+								chatId,
+								dataAboutUser.currentMatchId,
+								parseInt(text),
+								null
+							);
+						} else if (dataAboutUser.writeco2score) {
+							dataAboutUser.writeco2score = false;
+
+							GameScoreCounting(
+								chatId,
+								dataAboutUser.currentMatchId,
+								null,
+								parseInt(text)
+							);
+						}
+					}
+
 					if (
 						dataAboutUser &&
-						dataAboutUser.writeco1score &&
-						/^\d+$/.test(text)
+						dataAboutUser.userAction == "CreationNewMatch" &&
+						!text.includes("/start") &&
+						(dataAboutUser.writeNameForCo1 ||
+							dataAboutUser.writeNameForCo2 ||
+							(dataAboutUser.writeScoreTarget && /^\d+$/.test(text)))
 					) {
-						dataAboutUser.writeco1score = false;
+						dataAboutUser.writeNameForCo1
+							? ((dataAboutUser.matchesData.find(
+									(obj) => obj.matchId == dataAboutUser.currentMatchId
+							  ).nameForCom1 = text),
+							  (dataAboutUser.writeNameForCo1 = false))
+							: dataAboutUser.writeNameForCo2
+							? ((dataAboutUser.matchesData.find(
+									(obj) => obj.matchId == dataAboutUser.currentMatchId
+							  ).nameForCom2 = text),
+							  (dataAboutUser.writeNameForCo2 = false))
+							: ``;
 
-						GameScoreCounting(
-							chatId,
-							null,
-							dataAboutUser.currentMatchId,
-							text,
-							null
-						);
-					} else if (
-						dataAboutUser &&
-						dataAboutUser.writeco2score &&
-						/^\d+$/.test(text)
-					) {
-						dataAboutUser.writeco2score = false;
-						GameScoreCounting(
-							chatId,
-							null,
-							dataAboutUser.currentMatchId,
-							null,
-							text
-						);
+						dataAboutUser.writeScoreTarget && /^\d+$/.test(text)
+							? ((dataAboutUser.matchesData.find(
+									(obj) => obj.matchId == dataAboutUser.currentMatchId
+							  ).scoreTarget = parseInt(text)),
+							  (dataAboutUser.writeScoreTarget = false))
+							: ``;
+
+						CreationNewMatch(chatId, dataAboutUser.currentMatchId);
 					}
 
 					//? КОМАНДЫ
@@ -685,9 +1824,9 @@ async function StartAll() {
 									start(chatId, message.from.first_name, false);
 								} catch (error) {}
 							} else if (dataAboutUser) {
-								if (dataAboutUser.messageId != "") {
+								if (dataAboutUser.messageId) {
 									menuHome(chatId);
-								} else if (dataAboutUser.messageId == "") {
+								} else if (!dataAboutUser.messageId) {
 									try {
 										menuHome(chatId, false);
 										await bot.deleteMessage(
@@ -763,26 +1902,26 @@ async function StartAll() {
 
 			const dataAboutUser = usersData.find((obj) => obj.chatId === chatId);
 
-			if (!dataAboutUser) {
-				usersData.push({
-					chatId: chatId,
-					firstName: query.from.first_name,
-					messageId: query.message.message_id,
-					// счета
-					quarterCount: 1,
-					basketScores: [],
-					footScores: [],
-					volleyScores: [],
-					pinPongScores: [],
-				});
-			}
+			// if (!dataAboutUser) {
+			// 	usersData.push({
+			// 		chatId: chatId,
+			// 		firstName: message.from.first_name,
+			// 		messageId: message.message_id,
+			// 		userAction: "",
+
+			// 		// счета
+			// 		currentMatchId: "",
+			// 		matchesData: [],
+			// 		writeco1score: false,
+			// 		writeco2score: false,
+			// 	});
+			// }
 
 			if (dataAboutUser) {
 				dataAboutUser.messageId = query.message.message_id;
 			}
 
-			let commandNum,
-				matchId,
+			let matchId,
 				co1Score = 0,
 				co2Score = 0;
 			if (data.includes("upScore") || data.includes("downScore")) {
@@ -791,7 +1930,6 @@ async function StartAll() {
 
 				if (data.includes("upScore")) {
 					let match = data.match(/^upScore(\d+)WithId(\d+)$/);
-					commandNum = parseInt(match[1]);
 					matchId = parseInt(match[2]);
 
 					[co1Score, co2Score] = dataAboutUser.matchesData
@@ -799,13 +1937,12 @@ async function StartAll() {
 						.score.split(":")
 						.map(Number);
 
-					if (commandNum == 1) ++co1Score;
-					if (commandNum == 2) ++co2Score;
+					if (parseInt(match[1]) == 1) ++co1Score;
+					if (parseInt(match[1]) == 2) ++co2Score;
 				}
 				if (data.includes("downScore")) {
 					let match = data.match(/^downScore(\d+)WithId(\d+)$/);
 
-					commandNum = parseInt(match[1]);
 					matchId = parseInt(match[2]);
 
 					[co1Score, co2Score] = dataAboutUser.matchesData
@@ -813,117 +1950,48 @@ async function StartAll() {
 						.score.split(":")
 						.map(Number);
 
-					if (commandNum == 1) co1Score -= 1;
-					if (commandNum == 2) co2Score -= 1;
+					if (parseInt(match[1]) == 1) co1Score -= 1;
+					if (parseInt(match[1]) == 2) co2Score -= 1;
 				}
 				dataAboutUser.matchesData.find(
 					(obj) => obj.matchId == matchId
 				).score = `${co1Score}:${co2Score}`;
 
-				GameScoreCounting(chatId, null, matchId);
+				GameScoreCounting(chatId, matchId);
 			}
-			if (data.includes("end ")) {
-				let match = data.match(/^downscore(\d+)for(\d+)$/);
-				matchId = parseInt(match[1]);
-			}
-			if (data.includes("exitingTheMatchWithId")) {
-				let match = data.match(/^exitingTheMatchWithId(\d+)$/);
-				matchId = parseInt(match[1]);
 
-				dataAboutUser.writeco1score = false;
-				dataAboutUser.writeco2score = false;
-				if (
-					dataAboutUser.matchesData.find(
-						(obj) =>
-							obj.matchId == matchId &&
-							obj.score == "0:0" &&
-							obj.quarterOfGame == 1
-					)
-				) {
-					dataAboutUser.matchesData.splice(
-						dataAboutUser.matchesData.indexOf(
-							dataAboutUser.matchesData.find(
-								(obj) => obj.matchId == matchId && obj.score == "0:0"
-							)
-						),
-						1
-					);
-				}
-				if (
-					!dataAboutUser.matchesData.find(
-						(obj) =>
-							obj.matchId == matchId &&
-							obj.score == "0:0" &&
-							obj.quarterOfGame == 1
-					)
-				) {
-					// Очищаем массив scoreHistoryButtons
-					scoreHistoryButtons = [];
+			if (data.includes("CreationNewMatchWithSportNum")) {
+				let match = data.match(/^CreationNewMatchWithSportNum(\d+)$/);
 
-					// Проходимся по элементам в dataAboutuser.matchesData
-					dataAboutUser.matchesData.forEach((match) => {
-						// Если isOver == false, добавляем элемент в scoreHistoryButtons
-						if (match.isOver == false) {
-							scoreHistoryButtons.push([
-								{
-									text: `${
-										match.sportNum == 1
-											? "🏀"
-											: `${
-													match.sportNum == 2
-														? "🏐"
-														: `${
-																match.sportNum == 3
-																	? "⚽"
-																	: `${
-																			match.sportNum == 4
-																				? "🏓"
-																				: `${
-																						match.sportNum ==
-																						5
-																							? "⚙️"
-																							: ``
-																				  }`
-																	  }`
-														  }`
-											  }`
-									} Продолжить ( ${match.score} ) - ${
-										match.quarterOfGame
-									}-й
-												`,
-									callback_data: `matchWithId${match.matchId}`,
-								},
-							]);
-						}
-					});
-				}
-
-				GameScore(chatId);
+				CreationNewMatch(chatId, null, match[1]);
 			}
 
 			if (data.includes("toggleWriteScore")) {
 				let match = data.match(/^toggleWriteScore(\d+)WithId(\d+)$/);
 
-				commandNum = parseInt(match[1]);
 				matchId = parseInt(match[2]);
 
-				if (commandNum == 1) {
+				if (parseInt(match[1]) == 1) {
 					dataAboutUser.writeco1score = !dataAboutUser.writeco1score;
 					dataAboutUser.writeco2score = false;
-				} else if (commandNum == 2) {
+				} else if (parseInt(match[1]) == 2) {
 					dataAboutUser.writeco1score = false;
 					dataAboutUser.writeco2score = !dataAboutUser.writeco2score;
 				}
 
-				GameScoreCounting(chatId, null, matchId);
+				GameScoreCounting(chatId, matchId);
 			}
 
 			if (data.includes("matchWithId")) {
 				let match = data.match(/^matchWithId(\d+)$/);
 
-				matchId = parseInt(match[1]);
+				GameScoreCounting(chatId, match[1]);
+			}
 
-				GameScoreCounting(chatId, null, matchId);
+			if (data.includes("optionsForMatchWithId")) {
+				let match = data.match(/^optionsForMatchWithId(\d+)$/);
+
+				CreationNewMatch(chatId, match[1]);
 			}
 
 			if (data.includes("addQuarterWithId")) {
@@ -940,11 +2008,12 @@ async function StartAll() {
 					dataAboutUser.matchesData
 						.find((obj) => obj.matchId == matchId)
 						.scoresInQuarters.push(`${co1Score}:${co2Score}`);
+
 					dataAboutUser.matchesData.find(
 						(obj) => obj.matchId == matchId
 					).quarterOfGame += 1;
 
-					GameScoreCounting(chatId, null, matchId);
+					GameScoreCounting(chatId, matchId);
 				} catch (error) {
 					console.log(error);
 					sendDataAboutError(chatId, `${String(error)}`);
@@ -954,13 +2023,29 @@ async function StartAll() {
 			if (data.includes("endOfGameWithId")) {
 				let match = data.match(/^endOfGameWithId(\d+)$/);
 
-				matchId = parseInt(match[1]);
+				endOfGame(chatId, parseInt(match[1]));
+			}
 
-				dataAboutUser.matchesData.find(
-					(obj) => obj.matchId == matchId
-				).isOver = true;
+			if (data.includes("historyOfMatchesWithSportNumForHistory")) {
+				let match = data.match(
+					/^historyOfMatchesWithSportNumForHistory(\d+)$/
+				);
 
-				endOfGame(chatId);
+				historyOfMatches(chatId, parseInt(match[1]));
+			}
+
+			if (data.includes("copySettingsFromMatchWithId")) {
+				let match = data.match(/^copySettingsFromMatchWithId(\d+)$/);
+
+				CreationNewMatch(
+					chatId,
+					null,
+					null,
+					null,
+					null,
+					null,
+					parseInt(match[1])
+				);
 			}
 
 			//? Клавиатура
@@ -975,91 +2060,97 @@ async function StartAll() {
 				case "netsporta":
 					netsporta(chatId);
 					break;
-				case "basketballScores":
-					GameScoreCounting(chatId, 1);
-					break;
-				case "volleyballScores":
-					GameScoreCounting(chatId, 2);
-					break;
-				case "footballScores":
-					GameScoreCounting(chatId, 3);
-					break;
-				case "pinpongScores":
-					GameScoreCounting(chatId, 4);
-					break;
 				case "gameScore":
 					dataAboutUser.writeco1score = false;
 					dataAboutUser.writeco2score = false;
+
+					while (
+						dataAboutUser.matchesData[
+							dataAboutUser.matchesData.indexOf(
+								dataAboutUser.matchesData.find(
+									(obj) => obj.score == "0:0" && obj.quarterOfGame == 1
+								)
+							)
+						]
+					) {
+						dataAboutUser.matchesData[
+							dataAboutUser.matchesData.indexOf(
+								dataAboutUser.matchesData.find(
+									(obj) => obj.score == "0:0" && obj.quarterOfGame == 1
+								)
+							)
+						] = [];
+					}
+
+					if (
+						!dataAboutUser.matchesData[
+							dataAboutUser.matchesData.indexOf(
+								dataAboutUser.matchesData.find(
+									(obj) => obj.score == "0:0" && obj.quarterOfGame == 1
+								)
+							)
+						]
+					) {
+						// Очищаем массив scoreHistoryButtons
+						scoreHistoryButtons = [];
+
+						dataAboutUser.matchesData.forEach((match) => {
+							if (match.isOver == false) {
+								scoreHistoryButtons.push([
+									{
+										text: `${
+											match.sportNum == 1
+												? "🏀"
+												: `${
+														match.sportNum == 2
+															? "🏐"
+															: `${
+																	match.sportNum == 3
+																		? "⚽"
+																		: `${
+																				match.sportNum == 4
+																					? "🏓"
+																					: `${
+																							match.sportNum ==
+																							5
+																								? "⚙️"
+																								: ``
+																					  }`
+																		  }`
+															  }`
+												  }`
+										} Продолжить ( ${match.score} ) - ${
+											match.quarterOfGame
+										}-й`,
+										callback_data: `matchWithId${match.matchId}`,
+									},
+								]);
+							}
+						});
+					}
+
 					GameScore(chatId);
 					break;
-				case "endOfGame":
-					dataAboutUser.writeco1score = false;
-					dataAboutUser.writeco2score = false;
-
-					switch (dataAboutUser.currentSportNum) {
-						case 1:
-							if (
-								dataAboutUser.basketScores[
-									dataAboutUser.basketScores.length - 1
-								]
-							)
-								dataAboutUser.basketScores[
-									dataAboutUser.basketScores.length - 1
-								].isOver = true;
-
-							break;
-						case 2:
-							if (
-								dataAboutUser.volleyScores[
-									dataAboutUser.volleyScores.length - 1
-								]
-							)
-								dataAboutUser.volleyScores[
-									dataAboutUser.volleyScores.length - 1
-								].isOver = true;
-
-							break;
-						case 3:
-							if (
-								dataAboutUser.footScores[
-									dataAboutUser.footScores.length - 1
-								]
-							)
-								dataAboutUser.footScores[
-									dataAboutUser.footScores.length - 1
-								].isOver = true;
-
-							break;
-						case 4:
-							if (
-								dataAboutUser.pinPongScores[
-									dataAboutUser.pinPongScores.length - 1
-								]
-							)
-								dataAboutUser.pinPongScores[
-									dataAboutUser.pinPongScores.length - 1
-								].isOver = true;
-							break;
-					}
-					//TODO:
-					endOfGame(chatId, dataAboutUser.currentSportNum);
+				case "":
+					break;
+				case "":
 					break;
 				case "":
 					break;
 				case "":
 					break;
-				case "info":
-					info(
-						chatId,
-						query.from.first_name,
-						query.from.username,
-						query.from.id
-					);
+				case "historyOfMatches":
+					historyOfMatches(chatId);
+					break;
+				case "options":
+					if (dataAboutUser.userAction == "endOfGame")
+						endOfGame(chatId, dataAboutUser.currentMatchId);
+					else Options(chatId);
+
 					break;
 				case "motivation":
 					Motivation(chatId);
 					break;
-
 				case "":
 					break;
 				case "":
