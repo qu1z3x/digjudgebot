@@ -2,9 +2,9 @@ import TelegramBot from "node-telegram-bot-api";
 import cron from "node-cron";
 import fs from "fs";
 
-import { sendDataAboutButton } from "./tgterminal.js";
-import { sendDataAboutError } from "./tgterminal.js";
-import { sendDataAboutAction } from "./tgterminal.js";
+import { sendDataAboutButton } from "./sportterminal.js";
+import { sendDataAboutError } from "./sportterminal.js";
+import { sendDataAboutAction } from "./sportterminal.js";
 
 const TOKENs = [
 	"6654105779:AAEnCdIzKS_cgJUg4rMY8yNM3LPP5iZ-d_A",
@@ -1937,8 +1937,31 @@ async function StartAll() {
 						.score.split(":")
 						.map(Number);
 
-					if (parseInt(match[1]) == 1) ++co1Score;
-					if (parseInt(match[1]) == 2) ++co2Score;
+					if (parseInt(match[1]) == 1)
+						if (
+							dataAboutUser.matchesData.find(
+								(obj) => obj.matchId == matchId
+							).scoreTarget !=
+							co1Score + 1
+						)
+							++co1Score;
+						else {
+							endOfGame(chatId, matchId);
+							++co1Score;
+						}
+
+					if (parseInt(match[1]) == 2)
+						if (
+							dataAboutUser.matchesData.find(
+								(obj) => obj.matchId == matchId
+							).scoreTarget !=
+							co2Score + 1
+						)
+							++co2Score;
+						else {
+							endOfGame(chatId, matchId);
+							++co2Score;
+						}
 				}
 				if (data.includes("downScore")) {
 					let match = data.match(/^downScore(\d+)WithId(\d+)$/);
