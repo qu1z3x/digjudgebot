@@ -11,7 +11,7 @@ const TOKENs = [
 	"6858989950:AAH5tFy09SfJcD71mJoa4sB4lHEyWzw8nrQ",
 ];
 
-const TOKEN = TOKENs[1]; // 1 - оригинал
+const TOKEN = TOKENs[0]; // 1 - оригинал
 const bot = new TelegramBot(TOKEN, { polling: true });
 
 const qu1z3xId = "923690530";
@@ -1941,28 +1941,43 @@ async function StartAll() {
 						if (
 							dataAboutUser.matchesData.find(
 								(obj) => obj.matchId == matchId
-							).scoreTarget !=
+							).scoreTarget >
 							co1Score + 1
-						)
+						) {
 							++co1Score;
-						else {
+							dataAboutUser.matchesData.find(
+								(obj) => obj.matchId == matchId
+							).score = `${co1Score}:${co2Score}`;
+							GameScoreCounting(chatId, matchId);
+						} else {
+							++co1Score;
+							dataAboutUser.matchesData.find(
+								(obj) => obj.matchId == matchId
+							).score = `${co1Score}:${co2Score}`;
 							endOfGame(chatId, matchId);
-							++co1Score;
 						}
 
 					if (parseInt(match[1]) == 2)
 						if (
 							dataAboutUser.matchesData.find(
 								(obj) => obj.matchId == matchId
-							).scoreTarget !=
+							).scoreTarget >
 							co2Score + 1
-						)
+						) {
 							++co2Score;
-						else {
+							dataAboutUser.matchesData.find(
+								(obj) => obj.matchId == matchId
+							).score = `${co1Score}:${co2Score}`;
+							GameScoreCounting(chatId, matchId);
+						} else {
+							++co2Score;
+							dataAboutUser.matchesData.find(
+								(obj) => obj.matchId == matchId
+							).score = `${co1Score}:${co2Score}`;
 							endOfGame(chatId, matchId);
-							++co2Score;
 						}
 				}
+
 				if (data.includes("downScore")) {
 					let match = data.match(/^downScore(\d+)WithId(\d+)$/);
 
@@ -1975,12 +1990,12 @@ async function StartAll() {
 
 					if (parseInt(match[1]) == 1) co1Score -= 1;
 					if (parseInt(match[1]) == 2) co2Score -= 1;
-				}
-				dataAboutUser.matchesData.find(
-					(obj) => obj.matchId == matchId
-				).score = `${co1Score}:${co2Score}`;
 
-				GameScoreCounting(chatId, matchId);
+					dataAboutUser.matchesData.find(
+						(obj) => obj.matchId == matchId
+					).score = `${co1Score}:${co2Score}`;
+					GameScoreCounting(chatId, matchId);
+				}
 			}
 
 			if (data.includes("CreationNewMatchWithSportNum")) {
