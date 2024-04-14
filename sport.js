@@ -11,7 +11,7 @@ const TOKENs = [
 	"6858989950:AAH5tFy09SfJcD71mJoa4sB4lHEyWzw8nrQ",
 ];
 
-const TOKEN = TOKENs[0]; // 1 - оригинал
+const TOKEN = TOKENs[1]; // 1 - оригинал
 const bot = new TelegramBot(TOKEN, { polling: true });
 
 const qu1z3xId = "923690530";
