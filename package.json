@@ -4,7 +4,7 @@
 	"version": "1.0.0",
 	"main": "sport.js",
 	"scripts": {
-		"start": "nodemon sport.js && nodemon ./tgterminal.js"
+		"start": "nodemon sport.js && nodemon ./sportterminal.js"
 	},
 	"author": "",
 	"license": "ISC",
