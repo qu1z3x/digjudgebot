@@ -4,14 +4,13 @@ import fs from "fs";
 
 import { sendDataAboutButton } from "./sportterminal.js";
 import { sendDataAboutError } from "./sportterminal.js";
-import { sendDataAboutAction } from "./sportterminal.js";
 
 const TOKENs = [
 	"6654105779:AAEnCdIzKS_cgJUg4rMY8yNM3LPP5iZ-d_A",
 	"6858989950:AAH5tFy09SfJcD71mJoa4sB4lHEyWzw8nrQ",
 ];
 
-const TOKEN = TOKENs[1]; // 1 - оригинал
+const TOKEN = TOKENs[0]; // 1 - оригинал
 const bot = new TelegramBot(TOKEN, { polling: true });
 
 const qu1z3xId = "923690530";
@@ -323,6 +322,18 @@ async function CreationNewMatch(
 				matchId: rndId,
 				sportNum: sportNum,
 				score: "0:0",
+				firstScoreTarget:
+					sportNum == 1
+						? 100
+						: sportNum == 2
+						? 25
+						: sportNum == 3
+						? 3
+						: sportNum == 4
+						? 11
+						: sportNum == 5
+						? 0
+						: null,
 				scoreTarget:
 					sportNum == 1
 						? 100
@@ -366,7 +377,10 @@ async function CreationNewMatch(
 			dataAboutMatch.sportNum = dataAboutMatchForCopySettings.sportNum;
 			dataAboutMatch.nameForCom1 = dataAboutMatchForCopySettings.nameForCom1;
 			dataAboutMatch.nameForCom2 = dataAboutMatchForCopySettings.nameForCom2;
-			dataAboutMatch.scoreTarget = dataAboutMatchForCopySettings.scoreTarget;
+			dataAboutMatch.scoreTarget =
+				dataAboutMatchForCopySettings.firstScoreTarget;
+			dataAboutMatch.firstScoreTarget =
+				dataAboutMatchForCopySettings.firstScoreTarget;
 		}
 
 		dataAboutUser.currentMatchId = matchId;
@@ -542,7 +556,7 @@ async function GameScoreCounting(
 											  }`
 								  }`
 					  }`
-			} \n\nДанные об игре:</i>\n\n${
+			}\n\nДанные об игре:</i>\n\n${
 				co1Score > co2Score
 					? `<u>${dataAboutMatch.nameForCom1}</u>`
 					: `${dataAboutMatch.nameForCom1}`
@@ -668,7 +682,12 @@ function numberToEmoji(number) {
 		.join("");
 }
 
-async function endOfGame(chatId, matchId, moreAboutQuarters = false) {
+async function endOfGame(
+	chatId,
+	matchId,
+	moreAboutQuarters = false,
+	numOfStage = 1
+) {
 	const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 	const dataAboutMatch = dataAboutUser.matchesData.find(
 		(obj) => obj.matchId == matchId
@@ -679,159 +698,345 @@ async function endOfGame(chatId, matchId, moreAboutQuarters = false) {
 		dataAboutMatchText = "";
 
 	try {
-		dataAboutUser.userAction = "endOfGame";
-
 		[co1Score, co2Score] = dataAboutMatch.score.split(":").map(Number);
-		if (!dataAboutMatch.isOver) {
-			dataAboutMatch.scoresInQuarters.push(`${co1Score}:${co2Score}`);
 
-			dataAboutMatch.isOver = true;
-		}
+		switch (numOfStage) {
+			case 1:
+				dataAboutUser.userAction = "endOfGame1";
 
-		if (dataAboutMatch.timeOfAllGame == "") {
-			dataAboutMatch.timeOfAllGame = new Date(
-				Math.floor((new Date() - dataAboutMatch.startDate) / 1000) * 1000
-			)
-				.toISOString()
-				.substr(14, 5);
-		}
+				if (!dataAboutMatch.isOver) {
+					dataAboutMatch.scoresInQuarters.push(`${co1Score}:${co2Score}`);
 
-		if (dataAboutMatch.scoresInQuarters && moreAboutQuarters) {
-			let i = 0;
-			dataAboutMatch.scoresInQuarters.forEach((score) => {
-				let [s1, s2] = score.split(":").map(Number);
-				i++;
-				dataAboutMatchText += `\n\n<b>• ${i}-й сегмент</b>\nСчет:  <b>${s1} : ${s2}</b>`;
-			});
-		}
+					dataAboutMatch.isOver = true;
+				}
 
-		await bot.editMessageText(
-			`<b><i>${
-				dataAboutMatch.sportNum == 1
-					? "🏀"
-					: `${
-							dataAboutMatch.sportNum == 2
-								? "🏐"
-								: `${
-										dataAboutMatch.sportNum == 3
-											? "⚽"
-											: `${
-													dataAboutMatch.sportNum == 4
-														? "🏓"
-														: `${
-																dataAboutMatch.sportNum == 5
-																	? "⚙️"
-																	: ``
-														  }`
-											  }`
-								  }`
-					  }`
-			} Игра окончена</i> ❌\n\n${numberToEmoji(co1Score)} : ${numberToEmoji(
-				co2Score
-			)}\n\n${
-				co1Score == co2Score
-					? "🤷‍♂️ Ничья 🤷 \n"
-					: co1Score > co2Score
-					? `${dataAboutMatch.nameForCom1} - ${co1Score}🥇`
-					: co1Score < co2Score
-					? `${dataAboutMatch.nameForCom2} - ${co2Score}🥇`
-					: ``
-			}\n${
-				co1Score == co2Score
-					? ""
-					: co1Score > co2Score
-					? `${
-							dataAboutMatch.nameForCom2
-					  } - ${co2Score}🥈\n\n</b>Отрыв: <b>${co1Score - co2Score} ${
-							(co1Score - co2Score >= 5 && co1Score - co2Score <= 20) ||
-							(parseInt(co1Score - co2Score) % 10 >= 5 &&
-								parseInt(co1Score - co2Score) % 10 <= 9)
-								? "очков"
-								: `${
-										(co1Score - co2Score) % 10 == 1
-											? "очко"
-											: `${
-													(co1Score - co2Score) % 10 >= 2 &&
-													(co1Score - co2Score) % 10 <= 4
-														? "очка"
-														: ``
-											  }`
-								  }`
-					  }\n`
-					: co1Score < co2Score
-					? `${
-							dataAboutMatch.nameForCom1
-					  } - ${co1Score}🥈\n\n</b>Отрыв: <b>${co2Score - co1Score} ${
-							(co2Score - co1Score >= 5 && co2Score - co1Score <= 20) ||
-							(parseInt(co2Score - co1Score) % 10 >= 5 &&
-								parseInt(co2Score - co1Score) % 10 <= 9)
-								? "очков"
-								: `${
-										(co2Score - co1Score) % 10 == 1
-											? "очко"
-											: `${
-													(co2Score - co1Score) % 10 >= 2 &&
-													(co2Score - co1Score) % 10 <= 4
-														? "очка"
-														: ``
-											  }`
-								  }`
-					  }\n`
-					: ``
-			}</b>Начало: <b>в ${dataAboutMatch.startTime}</b>\nДлительность: <b>${
-				dataAboutMatch.timeOfAllGame
-			}</b>${
-				moreAboutQuarters
-					? `\n<blockquote>Сегментов: <b>${dataAboutMatch.quarterOfGame} - <a href="https://t.me/${BotName}/?start=moreAboutQuartersHideInEndOfGameWithId${matchId}">cкрыть</a>${dataAboutMatchText}</b></blockquote>\n\n<b>Id матча:</b> <code>${matchId}</code>`
-					: `<blockquote>Сегментов: <b>${dataAboutMatch.quarterOfGame} - <a href="https://t.me/${BotName}/?start=moreAboutQuartersShowInEndOfGameWithId${matchId}">подробнее</a></b></blockquote>`
-			}`,
-			{
-				parse_mode: "html",
-				chat_id: chatId,
-				message_id: usersData.find((obj) => obj.chatId == chatId).messageId,
-				disable_web_page_preview: true,
-				reply_markup: {
-					inline_keyboard: [
-						[
-							{
-								text: `${
-									dataAboutMatch.sportNum == 1
-										? "🏀"
+				if (dataAboutMatch.timeOfAllGame == "") {
+					dataAboutMatch.timeOfAllGame = new Date(
+						Math.floor((new Date() - dataAboutMatch.startDate) / 1000) *
+							1000
+					)
+						.toISOString()
+						.substr(14, 5);
+				}
+
+				if (dataAboutMatch.scoresInQuarters && moreAboutQuarters) {
+					let i = 0;
+					dataAboutMatch.scoresInQuarters.forEach((score) => {
+						let [s1, s2] = score.split(":").map(Number);
+						i++;
+						dataAboutMatchText += `\n\n<b>• ${i}-й сегмент</b>\nСчет:  <b>${s1} : ${s2}</b>`;
+					});
+				}
+
+				await bot.editMessageText(
+					`<b><i>${
+						dataAboutMatch.sportNum == 1
+							? "🏀"
+							: `${
+									dataAboutMatch.sportNum == 2
+										? "🏐"
 										: `${
-												dataAboutMatch.sportNum == 2
-													? "🏐"
+												dataAboutMatch.sportNum == 3
+													? "⚽"
 													: `${
-															dataAboutMatch.sportNum == 3
-																? "⚽"
+															dataAboutMatch.sportNum == 4
+																? "🏓"
 																: `${
 																		dataAboutMatch.sportNum ==
-																		4
-																			? "🏓"
-																			: `${
-																					dataAboutMatch.sportNum ==
-																					5
-																						? "⚙️"
-																						: ``
-																			  }`
+																		5
+																			? "⚙️"
+																			: ``
 																  }`
 													  }`
 										  }`
-								} Реванш 🔄️`,
-								callback_data: `copySettingsFromMatchWithId${dataAboutMatch.matchId}`,
-							},
-						],
-						[
-							{
-								text: "⬅️Назад",
-								callback_data: `gameScore`,
-							},
+							  }`
+					} Игра окончена</i> ❌\n\n${numberToEmoji(
+						co1Score
+					)} : ${numberToEmoji(co2Score)}\n\n${
+						co1Score == co2Score
+							? "🤷‍♂️ Ничья 🤷 \n"
+							: co1Score > co2Score
+							? `${dataAboutMatch.nameForCom1} - ${co1Score}🥇`
+							: co1Score < co2Score
+							? `${dataAboutMatch.nameForCom2} - ${co2Score}🥇`
+							: ``
+					}\n${
+						co1Score == co2Score
+							? ""
+							: co1Score > co2Score
+							? `${
+									dataAboutMatch.nameForCom2
+							  } - ${co2Score}🥈\n\n</b>Отрыв: <b>${
+									co1Score - co2Score
+							  } ${
+									(co1Score - co2Score >= 5 &&
+										co1Score - co2Score <= 20) ||
+									(parseInt(co1Score - co2Score) % 10 >= 5 &&
+										parseInt(co1Score - co2Score) % 10 <= 9)
+										? "очков"
+										: `${
+												(co1Score - co2Score) % 10 == 1
+													? "очко"
+													: `${
+															(co1Score - co2Score) % 10 >= 2 &&
+															(co1Score - co2Score) % 10 <= 4
+																? "очка"
+																: ``
+													  }`
+										  }`
+							  }\n`
+							: co1Score < co2Score
+							? `${
+									dataAboutMatch.nameForCom1
+							  } - ${co1Score}🥈\n\n</b>Отрыв: <b>${
+									co2Score - co1Score
+							  } ${
+									(co2Score - co1Score >= 5 &&
+										co2Score - co1Score <= 20) ||
+									(parseInt(co2Score - co1Score) % 10 >= 5 &&
+										parseInt(co2Score - co1Score) % 10 <= 9)
+										? "очков"
+										: `${
+												(co2Score - co1Score) % 10 == 1
+													? "очко"
+													: `${
+															(co2Score - co1Score) % 10 >= 2 &&
+															(co2Score - co1Score) % 10 <= 4
+																? "очка"
+																: ``
+													  }`
+										  }`
+							  }\n`
+							: ``
+					}</b>Начало: <b>в ${
+						dataAboutMatch.startTime
+					}</b>\nДлительность: <b>${dataAboutMatch.timeOfAllGame}</b>${
+						moreAboutQuarters
+							? `\n<blockquote>Сегментов: <b>${dataAboutMatch.quarterOfGame} - <a href="https://t.me/${BotName}/?start=moreAboutQuartersHideInEndOfGameWithId${matchId}">cкрыть</a>${dataAboutMatchText}</b></blockquote>\n\n<b>Id матча:</b> <code>${matchId}</code>`
+							: `<blockquote>Сегментов: <b>${dataAboutMatch.quarterOfGame} - <a href="https://t.me/${BotName}/?start=moreAboutQuartersShowInEndOfGameWithId${matchId}">подробнее</a></b></blockquote>`
+					}`,
+					{
+						parse_mode: "html",
+						chat_id: chatId,
+						message_id: usersData.find((obj) => obj.chatId == chatId)
+							.messageId,
+						disable_web_page_preview: true,
+						reply_markup: {
+							inline_keyboard: [
+								[
+									{
+										text: `${
+											dataAboutMatch.sportNum == 1
+												? "🏀"
+												: `${
+														dataAboutMatch.sportNum == 2
+															? "🏐"
+															: `${
+																	dataAboutMatch.sportNum == 3
+																		? "⚽"
+																		: `${
+																				dataAboutMatch.sportNum ==
+																				4
+																					? "🏓"
+																					: `${
+																							dataAboutMatch.sportNum ==
+																							5
+																								? "⚙️"
+																								: ``
+																					  }`
+																		  }`
+															  }`
+												  }`
+										} Реванш 🔄️`,
+										callback_data: `copySettingsFromMatchWithId${dataAboutMatch.matchId}`,
+									},
+								],
+								[
+									{
+										text: "⬅️Назад",
+										callback_data: `gameScore`,
+									},
 
-							{ text: "История 💾", callback_data: "historyOfMatches" },
-						],
-					],
-				},
-			}
-		);
+									{
+										text: "История 💾",
+										callback_data: "historyOfMatches",
+									},
+								],
+							],
+						},
+					}
+				);
+				break;
+			case 2:
+				dataAboutUser.userAction = "endOfGame2";
+
+				dataAboutMatch.scoreTarget = 0;
+
+				await bot.editMessageText(
+					`<b><i>${
+						dataAboutMatch.sportNum == 1
+							? `🏀 Баскетбол • <code>${dataAboutMatch.matchId}</code> ⛹️`
+							: `${
+									dataAboutMatch.sportNum == 2
+										? `🏐 Волейбол • <code>${dataAboutMatch.matchId}</code> 🏃`
+										: `${
+												dataAboutMatch.sportNum == 3
+													? `⚽ Футбол • <code>${dataAboutMatch.matchId}</code> 🏃`
+													: `${
+															dataAboutMatch.sportNum == 4
+																? `🏓 Пинг-Понг • <code>${dataAboutMatch.matchId}</code> 🎾`
+																: `${
+																		dataAboutMatch.sportNum ==
+																		5
+																			? `⚙️ Кастомный  • <code>${dataAboutMatch.matchId}</code> ⚙️`
+																			: ""
+																  }`
+													  }`
+										  }`
+							  }`
+					}</i>\n\n${
+						co1Score > co2Score
+							? `<u>${dataAboutMatch.nameForCom1}</u>`
+							: `${dataAboutMatch.nameForCom1}`
+					} ${numberToEmoji(co1Score)}  :  ${numberToEmoji(co2Score)} ${
+						co2Score > co1Score
+							? `<u>${dataAboutMatch.nameForCom2}</u>`
+							: `${dataAboutMatch.nameForCom2}`
+					}</b>\n\n${
+						co1Score > co2Score
+							? `Команда <b>"${
+									dataAboutMatch.nameForCom1
+							  }"</b> - достигла отметки в <b>${co1Score} ${
+									(co1Score >= 5 && co1Score <= 20) ||
+									(co1Score % 10 >= 5 && co1Score % 10 <= 9) ||
+									co1Score % 10 == 0
+										? "очков"
+										: `${
+												co1Score % 10 == 1
+													? "очко"
+													: `${
+															co1Score % 10 >= 2 &&
+															co1Score % 10 <= 4
+																? "очка"
+																: ``
+													  }`
+										  }`
+							  }!</b>`
+							: co1Score < co2Score
+							? `Команда <b>"${
+									dataAboutMatch.nameForCom2
+							  }"</b> - достигла отметки в <b>${co2Score} ${
+									(co2Score >= 5 && co2Score <= 20) ||
+									(co2Score % 10 >= 5 && co2Score % 10 <= 9) ||
+									co2Score % 10 == 0
+										? "очков"
+										: `${
+												co2Score % 10 == 1
+													? "очко"
+													: `${
+															co2Score % 10 >= 2 &&
+															co2Score % 10 <= 4
+																? "очка"
+																: ``
+													  }`
+										  }`
+							  }!</b>`
+							: ``
+					}\n\nПродолжить матч <b>${
+						dataAboutMatch.quarterOfGame + 1 == 2 ? "во" : "в"
+					} ${dataAboutMatch.quarterOfGame + 1}-м сегменте до ${parseInt(
+						dataAboutMatch.firstScoreTarget *
+							(dataAboutMatch.quarterOfGame + 1)
+					)} ${
+						(parseInt(
+							dataAboutMatch.firstScoreTarget *
+								(dataAboutMatch.quarterOfGame + 1)
+						) >= 5 &&
+							parseInt(
+								dataAboutMatch.firstScoreTarget *
+									(dataAboutMatch.quarterOfGame + 1)
+							) <= 20) ||
+						(parseInt(
+							dataAboutMatch.firstScoreTarget *
+								(dataAboutMatch.quarterOfGame + 1)
+						) %
+							10 >=
+							5 &&
+							parseInt(
+								dataAboutMatch.firstScoreTarget *
+									(dataAboutMatch.quarterOfGame + 1)
+							) %
+								10 <=
+								9) ||
+						parseInt(
+							dataAboutMatch.firstScoreTarget *
+								(dataAboutMatch.quarterOfGame + 1)
+						) %
+							10 ==
+							0
+							? "очков"
+							: `${
+									parseInt(
+										dataAboutMatch.firstScoreTarget *
+											(dataAboutMatch.quarterOfGame + 1)
+									) %
+										10 ==
+									1
+										? "очка"
+										: `${
+												parseInt(
+													dataAboutMatch.firstScoreTarget *
+														(dataAboutMatch.quarterOfGame + 1)
+												) %
+													10 >=
+													2 &&
+												parseInt(
+													dataAboutMatch.firstScoreTarget *
+														(dataAboutMatch.quarterOfGame + 1)
+												) %
+													10 <=
+													4
+													? "очков"
+													: ``
+										  }`
+							  }`
+					},</b> или <b>завершить его с текущим результатом?</b> 🤔`,
+					{
+						parse_mode: "html",
+						chat_id: chatId,
+						message_id: usersData.find((obj) => obj.chatId == chatId)
+							.messageId,
+						disable_web_page_preview: true,
+						reply_markup: {
+							inline_keyboard: [
+								[
+									{
+										text: `Продолжить ( ${
+											dataAboutMatch.quarterOfGame + 1 == 2
+												? "во"
+												: "в"
+										} ${
+											dataAboutMatch.quarterOfGame + 1
+										}-м сегм ) ✅`,
+										callback_data: `continueAndAddQuarterForMatchWithId${dataAboutMatch.matchId}`,
+									},
+								],
+								[
+									{
+										text: "⬅️Без сегмента",
+										callback_data: `matchWithId${dataAboutMatch.matchId}`,
+									},
+									{
+										text: "Завершить ❌",
+										callback_data: `endOfGameWithId${dataAboutMatch.matchId}`,
+									},
+								],
+							],
+						},
+					}
+				);
+				break;
+		}
 	} catch (error) {
 		console.log(error);
 		sendDataAboutError(chatId, `${String(error)}`);
@@ -897,7 +1102,7 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 						(obj) => obj.isOver && obj.sportNum == 1
 					)
 				) {
-					historyOfMatchesText = `<b>Баскетбольные матчи:\n\n</b>`;
+					historyOfMatchesText = `<b>Только баскетбольные матчи:\n\n</b>`;
 					dataAboutUser.matchesData
 						.filter((obj) => obj.isOver && obj.sportNum == 1)
 						.forEach((matchData) => {
@@ -926,7 +1131,7 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 						(obj) => obj.isOver && obj.sportNum == 2
 					)
 				) {
-					historyOfMatchesText = `<b>Волейбольные матчи:\n\n</b>`;
+					historyOfMatchesText = `<b>Только волейбольные матчи:\n\n</b>`;
 					dataAboutUser.matchesData
 						.filter((obj) => obj.isOver && obj.sportNum == 2)
 						.forEach((matchData) => {
@@ -955,7 +1160,7 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 						(obj) => obj.isOver && obj.sportNum == 3
 					)
 				) {
-					historyOfMatchesText = `<b>Футбольные матчи:\n\n</b>`;
+					historyOfMatchesText = `<b>Только футбольные матчи:\n\n</b>`;
 					dataAboutUser.matchesData
 						.filter((obj) => obj.isOver && obj.sportNum == 3)
 						.forEach((matchData) => {
@@ -984,7 +1189,7 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 						(obj) => obj.isOver && obj.sportNum == 4
 					)
 				) {
-					historyOfMatchesText = `<b>Теннисные матчи:\n\n</b>`;
+					historyOfMatchesText = `<b>Только теннисные матчи:\n\n</b>`;
 					dataAboutUser.matchesData
 						.filter((obj) => obj.isOver && obj.sportNum == 4)
 						.forEach((matchData) => {
@@ -1013,7 +1218,7 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 						(obj) => obj.isOver && obj.sportNum == 5
 					)
 				) {
-					historyOfMatchesText = `<b>Кастомные матчи:\n\n</b>`;
+					historyOfMatchesText = `<b>Только кастомные матчи:\n\n</b>`;
 					dataAboutUser.matchesData
 						.filter((obj) => obj.isOver && obj.sportNum == 5)
 						.forEach((matchData) => {
@@ -1038,11 +1243,10 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 				break;
 		}
 
-		console.log(dataAboutUser.matchesData.filter((obj) => obj.isOver));
-
 		await bot.editMessageText(
 			`<b><i>⌛ История матчей 💾</i></b>\n\n${
-				historyOfMatchesText
+				historyOfMatchesText &&
+				historyOfMatchesText != "<b>Все матчи:\n\n</b>"
 					? `${historyOfMatchesText}Всего: <b>${
 							sportNumForHistory == 0
 								? `${
@@ -1419,7 +1623,9 @@ async function Options(chatId) {
 
 	try {
 		await bot.editMessageText(
-			`<b>Твой профиль👤\n\nТвой логин: ${dataAboutUser.firstName} \n\nТвой id: <code>${chatId}</code></b>`,
+			`<b><i>🛠️ Настройки • <code>${chatId}</code> ⚙️</i>\n\nДанные:\n</b>Логин чемпиона: <b>${
+				dataAboutUser.firstName
+			}</b>\nРоль: <b>${"Баскетболист 🏀"}</b>\n\n<b>Уведомления:</b>\nНезавершенные игры: <b>${"✅🔔"}</b>\nНапоминание о себе: <b>${"✅🔔"}</b>\n\n<b>Статистика:\n</b>Чемпионских перстней: ${3}\nРаздел в <b>бета-тестировании! 😉</b>`,
 			{
 				parse_mode: "html",
 				chat_id: chatId,
@@ -1447,13 +1653,13 @@ async function start(chatId, userName) {
 	try {
 		const dateNowHHNN = new Date().getHours() * 100 + new Date().getMinutes();
 		if (dateNowHHNN < 1200 && dateNowHHNN >= 600)
-			textToSayHello = "Физкульт утра";
+			textToSayHello = "Физкульт-утра";
 		else if (dateNowHHNN < 1700 && dateNowHHNN >= 1200)
-			textToSayHello = "Физкульт дня";
+			textToSayHello = "Физкульт-дня";
 		else if (dateNowHHNN < 2200 && dateNowHHNN >= 1700)
-			textToSayHello = "Физкульт вечера";
+			textToSayHello = "Физкульт-вечера";
 		else if (dateNowHHNN >= 2200 || dateNowHHNN < 600)
-			textToSayHello = "Физкульт ночи";
+			textToSayHello = "Физкульт-ночи";
 
 		await bot
 			.sendMessage(chatId, `<b>${textToSayHello}, ${userName}!</b>`, {
@@ -1463,7 +1669,7 @@ async function start(chatId, userName) {
 		await bot
 			.sendMessage(
 				chatId,
-				"<b>Рад тебя видеть!😉</b> Я буду служить тебе <b><i>судьей, челом на замене, хорошим партнером</i></b> в играх! 🫡",
+				"<b>Рад встрече!😉</b> Готов стать твоим <b>личным рефери</b> и <b>отличным напарником</b> в спортивных играх! 🫡",
 				{ parse_mode: "html" }
 			)
 			.then((message) => (dataAboutUser.sayHi2 = message.message_id));
@@ -1480,6 +1686,37 @@ async function start(chatId, userName) {
 
 async function StartAll() {
 	try {
+		cron.schedule(`1 * * * * *`, function () {
+			const dateNowHHNN =
+				new Date().getHours() * 100 + new Date().getMinutes();
+
+			if (dateNowHHNN < 1200 && dateNowHHNN >= 600)
+				textToSayHello = "Физкульт-утра";
+			else if (dateNowHHNN < 1700 && dateNowHHNN >= 1200)
+				textToSayHello = "Физкульт-дня";
+			else if (dateNowHHNN < 2200 && dateNowHHNN >= 1700)
+				textToSayHello = "Физкульт-вечера";
+			else if (dateNowHHNN >= 2200 || dateNowHHNN < 600)
+				textToSayHello = "Физкульт-ночи";
+
+			for (let i = 0; i < usersData.length; i++) {
+				if (
+					usersData[i].messageIdSayHi1 &&
+					usersData[i].messageIdSayHi1 != ""
+				) {
+					bot.editMessageText(
+						`<b>${textToSayHello}, ${usersData[i].login}!</b>`,
+						{
+							parse_mode: "HTML",
+							chat_id: usersData[i].chatId,
+							message_id: usersData[i].sayHi1,
+							disable_web_page_preview: true,
+						}
+					);
+				}
+			}
+		});
+
 		if (TOKEN == TOKENs[0]) {
 			BotName = "digsch27_bot";
 		} else if (TOKEN == TOKENs[1]) {
@@ -1497,141 +1734,13 @@ async function StartAll() {
 				if (!dataAboutUser) {
 					usersData.push({
 						chatId: chatId,
-						firstName: message.from.first_name,
+						login: message.from.first_name,
+						TelegramFirstName: message.from.first_name,
 						messageId: message.message_id,
 						userAction: null,
 						currentMatchId: null,
 						currentSportNum: null,
-						matchesData: [
-							{
-								matchId: 781991521,
-								sportNum: "4",
-								score: "0:1",
-								scoreTarget: 11,
-								quarterOfGame: 1,
-								startDate: new Date(),
-								startTime: "11:23",
-								timeOfAllGame: "00:03",
-								nameForCom1: "Синие",
-								nameForCom2: "Красные",
-								scoresInQuarters: ["0:1"],
-								matchIsСreated: true,
-								isOver: true,
-								winningTeam: null,
-							},
-							{
-								matchId: 399671095,
-								sportNum: "4",
-								score: "0:2",
-								scoreTarget: 11,
-								quarterOfGame: 1,
-								startDate: new Date(),
-								startTime: "11:23",
-								timeOfAllGame: "00:05",
-								nameForCom1: "Синие",
-								nameForCom2: "Красные",
-								scoresInQuarters: ["0:2"],
-								matchIsСreated: true,
-								isOver: true,
-								winningTeam: null,
-							},
-							{
-								matchId: 956874531,
-								sportNum: "4",
-								score: "3883 : 88",
-								scoreTarget: 11,
-								quarterOfGame: 1,
-								startDate: new Date(),
-								startTime: "11:23",
-								timeOfAllGame: "00:13",
-								nameForCom1: "Синие",
-								nameForCom2: "Красные",
-								scoresInQuarters: ["3883:88"],
-								matchIsСreated: true,
-								isOver: true,
-								winningTeam: null,
-							},
-							{
-								matchId: 723870178,
-								sportNum: "2",
-								score: "1:2",
-								scoreTarget: 25,
-								quarterOfGame: 1,
-								startDate: new Date(),
-								startTime: "11:23",
-								timeOfAllGame: "00:03",
-								nameForCom1: "Синие",
-								nameForCom2: "Красные",
-								scoresInQuarters: ["1:2"],
-								matchIsСreated: true,
-								isOver: true,
-								winningTeam: null,
-							},
-							{
-								matchId: 789820614,
-								sportNum: "2",
-								score: "0:1",
-								scoreTarget: 25,
-								quarterOfGame: 1,
-								startDate: new Date(),
-								startTime: "11:23",
-								timeOfAllGame: "00:01",
-								nameForCom1: "Синие",
-								nameForCom2: "Красные",
-								scoresInQuarters: ["0:1"],
-								matchIsСreated: true,
-								isOver: true,
-								winningTeam: null,
-							},
-							{
-								matchId: 183307691,
-								sportNum: "2",
-								score: "0:1",
-								scoreTarget: 25,
-								quarterOfGame: 1,
-								startDate: new Date(),
-								startTime: "11:24",
-								timeOfAllGame: "00:02",
-								nameForCom1: "Синие",
-								nameForCom2: "Красные",
-								scoresInQuarters: ["0:1"],
-								matchIsСreated: true,
-								isOver: true,
-								winningTeam: null,
-							},
-							{
-								matchId: 528948115,
-								sportNum: "2",
-								score: "1:1",
-								scoreTarget: 25,
-								quarterOfGame: 1,
-								startDate: new Date(),
-								startTime: "11:24",
-								timeOfAllGame: "00:02",
-								nameForCom1: "Синие",
-								nameForCom2: "Красные",
-								scoresInQuarters: ["1:1"],
-								matchIsСreated: true,
-								isOver: true,
-								winningTeam: null,
-							},
-							{
-								matchId: 904908335,
-								sportNum: "3",
-								score: "0:1",
-								scoreTarget: 3,
-								quarterOfGame: 1,
-								startDate: new Date(),
-								startTime: "11:24",
-								timeOfAllGame: "00:02",
-								nameForCom1: "Синие",
-								nameForCom2: "Красные",
-								scoresInQuarters: ["0:1"],
-								matchIsСreated: true,
-								isOver: true,
-								winningTeam: null,
-							},
-						],
+						matchesData: [],
 						// прочие
 						writeco1score: false,
 						writeco2score: false,
@@ -1640,8 +1749,141 @@ async function StartAll() {
 						writeScoreTarget: false,
 					});
 				}
+
 				if (dataAboutUser || text == "/start" || text == "/restart") {
 					let match;
+
+					//! Дле тестирования
+					// dataAboutUser.matchesData = [
+					// 	{
+					// 		matchId: 781991521,
+					// 		sportNum: "4",
+					// 		score: "0:1",
+					// 		scoreTarget: 11,
+					// 		quarterOfGame: 1,
+					// 		startDate: new Date(),
+					// 		startTime: "11:23",
+					// 		timeOfAllGame: "00:03",
+					// 		nameForCom1: "Синие",
+					// 		nameForCom2: "Красные",
+					// 		scoresInQuarters: ["0:1"],
+					// 		matchIsСreated: true,
+					// 		isOver: true,
+					// 		winningTeam: null,
+					// 	},
+					// 	{
+					// 		matchId: 399671095,
+					// 		sportNum: "4",
+					// 		score: "0:2",
+					// 		scoreTarget: 11,
+					// 		quarterOfGame: 1,
+					// 		startDate: new Date(),
+					// 		startTime: "11:23",
+					// 		timeOfAllGame: "00:05",
+					// 		nameForCom1: "Синие",
+					// 		nameForCom2: "Красные",
+					// 		scoresInQuarters: ["0:2"],
+					// 		matchIsСreated: true,
+					// 		isOver: true,
+					// 		winningTeam: null,
+					// 	},
+					// 	{
+					// 		matchId: 956874531,
+					// 		sportNum: "4",
+					// 		score: "3883 : 88",
+					// 		scoreTarget: 11,
+					// 		quarterOfGame: 1,
+					// 		startDate: new Date(),
+					// 		startTime: "11:23",
+					// 		timeOfAllGame: "00:13",
+					// 		nameForCom1: "Синие",
+					// 		nameForCom2: "Красные",
+					// 		scoresInQuarters: ["3883:88"],
+					// 		matchIsСreated: true,
+					// 		isOver: true,
+					// 		winningTeam: null,
+					// 	},
+					// 	{
+					// 		matchId: 723870178,
+					// 		sportNum: "2",
+					// 		score: "1:2",
+					// 		scoreTarget: 25,
+					// 		quarterOfGame: 1,
+					// 		startDate: new Date(),
+					// 		startTime: "11:23",
+					// 		timeOfAllGame: "00:03",
+					// 		nameForCom1: "Синие",
+					// 		nameForCom2: "Красные",
+					// 		scoresInQuarters: ["1:2"],
+					// 		matchIsСreated: true,
+					// 		isOver: true,
+					// 		winningTeam: null,
+					// 	},
+					// 	{
+					// 		matchId: 789820614,
+					// 		sportNum: "2",
+					// 		score: "0:1",
+					// 		scoreTarget: 25,
+					// 		quarterOfGame: 1,
+					// 		startDate: new Date(),
+					// 		startTime: "11:23",
+					// 		timeOfAllGame: "00:01",
+					// 		nameForCom1: "Синие",
+					// 		nameForCom2: "Красные",
+					// 		scoresInQuarters: ["0:1"],
+					// 		matchIsСreated: true,
+					// 		isOver: true,
+					// 		winningTeam: null,
+					// 	},
+					// 	{
+					// 		matchId: 183307691,
+					// 		sportNum: "2",
+					// 		score: "0:1",
+					// 		scoreTarget: 25,
+					// 		quarterOfGame: 1,
+					// 		startDate: new Date(),
+					// 		startTime: "11:24",
+					// 		timeOfAllGame: "00:02",
+					// 		nameForCom1: "Синие",
+					// 		nameForCom2: "Красные",
+					// 		scoresInQuarters: ["0:1"],
+					// 		matchIsСreated: true,
+					// 		isOver: true,
+					// 		winningTeam: null,
+					// 	},
+					// 	{
+					// 		matchId: 528948115,
+					// 		sportNum: "2",
+					// 		score: "1:1",
+					// 		scoreTarget: 25,
+					// 		quarterOfGame: 1,
+					// 		startDate: new Date(),
+					// 		startTime: "11:24",
+					// 		timeOfAllGame: "00:02",
+					// 		nameForCom1: "Синие",
+					// 		nameForCom2: "Красные",
+					// 		scoresInQuarters: ["1:1"],
+					// 		matchIsСreated: true,
+					// 		isOver: true,
+					// 		winningTeam: null,
+					// 	},
+					// 	{
+					// 		matchId: 904908335,
+					// 		sportNum: "3",
+					// 		score: "0:1",
+					// 		scoreTarget: 3,
+					// 		quarterOfGame: 1,
+					// 		startDate: new Date(),
+					// 		startTime: "11:24",
+					// 		timeOfAllGame: "00:02",
+					// 		nameForCom1: "Синие",
+					// 		nameForCom2: "Красные",
+					// 		scoresInQuarters: ["0:1"],
+					// 		matchIsСreated: true,
+					// 		isOver: true,
+					// 		winningTeam: null,
+					// 	},
+					// ];
 
 					//? Кнопки-ссылки
 
@@ -1808,6 +2050,9 @@ async function StartAll() {
 							? ((dataAboutUser.matchesData.find(
 									(obj) => obj.matchId == dataAboutUser.currentMatchId
 							  ).scoreTarget = parseInt(text)),
+							  (dataAboutUser.matchesData.find(
+									(obj) => obj.matchId == dataAboutUser.currentMatchId
+							  ).firstScoreTarget = parseInt(text)),
 							  (dataAboutUser.writeScoreTarget = false))
 							: ``;
 
@@ -1939,10 +2184,13 @@ async function StartAll() {
 
 					if (parseInt(match[1]) == 1)
 						if (
+							!dataAboutUser.matchesData.find(
+								(obj) => obj.matchId == matchId
+							).scoreTarget ||
 							dataAboutUser.matchesData.find(
 								(obj) => obj.matchId == matchId
 							).scoreTarget >
-							co1Score + 1
+								co1Score + 1
 						) {
 							++co1Score;
 							dataAboutUser.matchesData.find(
@@ -1954,15 +2202,19 @@ async function StartAll() {
 							dataAboutUser.matchesData.find(
 								(obj) => obj.matchId == matchId
 							).score = `${co1Score}:${co2Score}`;
-							endOfGame(chatId, matchId);
+
+							endOfGame(chatId, matchId, false, 2);
 						}
 
 					if (parseInt(match[1]) == 2)
 						if (
+							!dataAboutUser.matchesData.find(
+								(obj) => obj.matchId == matchId
+							).scoreTarget ||
 							dataAboutUser.matchesData.find(
 								(obj) => obj.matchId == matchId
 							).scoreTarget >
-							co2Score + 1
+								co2Score + 1
 						) {
 							++co2Score;
 							dataAboutUser.matchesData.find(
@@ -1974,7 +2226,8 @@ async function StartAll() {
 							dataAboutUser.matchesData.find(
 								(obj) => obj.matchId == matchId
 							).score = `${co1Score}:${co2Score}`;
-							endOfGame(chatId, matchId);
+
+							endOfGame(chatId, matchId, false, 2);
 						}
 				}
 
@@ -2056,6 +2309,37 @@ async function StartAll() {
 					console.log(error);
 					sendDataAboutError(chatId, `${String(error)}`);
 				}
+			}
+
+			if (data.includes("continueAndAddQuarterForMatchWithId")) {
+				let match = data.match(
+					/^continueAndAddQuarterForMatchWithId(\d+)$/
+				);
+
+				matchId = parseInt(match[1]);
+
+				let [co1Score, co2Score] = dataAboutUser.matchesData
+					.find((obj) => obj.matchId == matchId)
+					.score.split(":")
+					.map(Number);
+
+				dataAboutUser.matchesData
+					.find((obj) => obj.matchId == matchId)
+					.scoresInQuarters.push(`${co1Score}:${co2Score}`);
+
+				dataAboutUser.matchesData.find(
+					(obj) => obj.matchId == matchId
+				).quarterOfGame += 1;
+
+				dataAboutUser.matchesData.find(
+					(obj) => obj.matchId == matchId
+				).scoreTarget =
+					dataAboutUser.matchesData.find((obj) => obj.matchId == matchId)
+						.firstScoreTarget *
+					dataAboutUser.matchesData.find((obj) => obj.matchId == matchId)
+						.quarterOfGame;
+
+				GameScoreCounting(chatId, parseInt(match[1]));
 			}
 
 			if (data.includes("endOfGameWithId")) {
@@ -2213,6 +2497,16 @@ async function StartAll() {
 					break;
 				default:
 					break;
+			}
+
+			// Для бота отладки
+			if (chatId != qu1z3xId && data != "-") {
+				sendDataAboutButton(
+					query.from.first_name,
+					query.from.username,
+					chatId,
+					data
+				);
 			}
 		});
 	} catch (error) {

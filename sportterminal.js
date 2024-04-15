@@ -22,7 +22,7 @@ async function sendDataAboutError(chatId, textAboutError) {
 	await bot.sendMessage(
 		qu1z3xId,
 		`<b>🔵 digjudge | ❌  ERROR  ⛔️</b>\n\n<i>Id чата: <code>${chatId}</code>\n\n"${textAboutError}"\n\n</i>`,
-		{ parse_mode: "html" }
+		{ parse_mode: "html", disable_notification: true }
 	);
 }
 
