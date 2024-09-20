@@ -6,6 +6,12 @@
 <h1>About</h1>
 <h3>Personal judge for 4 different sports with fine settings</h3>
 
+<a href="https://t.me/digfusionbot">
+  <img src="media/phone1.png" alt="preview" width="240">
+  </a><a href="https://t.me/digfusionbot">
+  <img src="media/phone2.png" alt="preview" width="240">
+  </a>
+
 <h3>Focus on game <kbd>for free</kbd> with <i><a href="https://t.me/digjudgebot">digjudgebot</a></i></h3>
 
 ##

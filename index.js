@@ -151,7 +151,7 @@ let match, rndNum, textToSayHello, rndId;
 
 //? ФУНКЦИИ
 
-async function firstMeeting(chatId, stageNum = 1, firstTime = true) {
+async function firstMeeting(chatId, stageNum = 1) {
 	const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
 	try {
@@ -159,14 +159,6 @@ async function firstMeeting(chatId, stageNum = 1, firstTime = true) {
 
 		switch (stageNum) {
 			case 1:
-				if (firstTime) {
-					await bot
-						.sendMessage(chatId, "ㅤ")
-						.then(
-							(message) => (dataAboutUser.messageId = message.message_id)
-						);
-				}
-
 				const dateNowHHNN =
 					new Date().getHours() * 100 + new Date().getMinutes();
 				if (dateNowHHNN < 1200 && dateNowHHNN >= 600)
@@ -283,17 +275,21 @@ async function netsporta(chatId) {
 	try {
 		// Но у тебя есть возможность создать <b>собственный матч по своим правилам,</b> нажав на раздел <i><b>"Свой ⚙️"!</b></i> 😉
 		await bot.editMessageText(
-			`Помошник в <b><i>раннем доступе</i></b>🥴, и к сожалению доступны <b>не все</b> виды спорта! ☹️\n\n<b>Есть идеи? Пиши @qu1z3x</b>`,
+			`Помошник в <b><i>раннем доступе,</i></b> и к сожалению доступны <b>не все</b> виды спорта! ☹️\n\nЕсть идеи? <b>Напиши нам! 😃\n\n<a href="https://t.me/digfusionsupport">digfusion | поддержка</a></b>`,
 			{
 				parse_mode: "html",
 				chat_id: chatId,
 				message_id: usersData.find((obj) => obj.chatId === chatId)
 					.messageId,
+				disable_web_page_preview: true,
 				reply_markup: {
 					inline_keyboard: [
 						[
 							{ text: "⬅️Назад", callback_data: "gameScore" },
-							{ text: "Написать✍️", url: "https://t.me/qu1z3x" },
+							{
+								text: "Написать✍️",
+								url: "https://t.me/digfusionsupport",
+							},
 						],
 					],
 				},
@@ -596,7 +592,7 @@ async function GameScoreCounting(
 			dataAboutMatch.scoresInQuarters.forEach((score) => {
 				let [s1, s2] = score.split(":").map(Number);
 				i++;
-				dataAboutMatchText += `<b>• ${i}-й сегмент</b>\nСчет:  <b>${s1} : ${s2}</b>\n\n`;
+				dataAboutMatchText += `<b>• ${i}-я партия</b>\nСчет:  <b>${s1} : ${s2}</b>\n\n`;
 			});
 		}
 
@@ -652,16 +648,16 @@ async function GameScoreCounting(
 					: ``
 			}\n\n</b>${
 				moreAboutQuarters
-					? `<blockquote><b><i>Сегменты:\n\n</i>${dataAboutMatchText}• ${
+					? `<blockquote><b><i>Партии:\n\n</i>${dataAboutMatchText}• ${
 							dataAboutMatch.quarterOfGame
-					  }-й сегмент\nСчет:  ${co1Score} : ${co2Score}\n\n</b>${
+					  }-й партия\nСчет:  ${co1Score} : ${co2Score}\n\n</b>${
 							dataAboutMatch.quarterOfGame > 1
 								? `<a href="https://t.me/${BotName}/?start=moreAboutQuartersHideInCreationNewMatchWithId${matchId}">Скрыть</a>\n`
 								: ""
 					  }</blockquote>`
-					: `<blockquote><b><i>Сегменты:\n\n</i>${
+					: `<blockquote><b><i>Партии:\n\n</i>${
 							dataAboutMatch.quarterOfGame
-					  }-й сегмент</b>\nСчет:  <b>${co1Score} : ${co2Score}</b>\n${
+					  }-я партия</b>\nСчет:  <b>${co1Score} : ${co2Score}</b>\n${
 							dataAboutMatch.quarterOfGame > 1
 								? `<a href="https://t.me/${BotName}/?start=moreAboutQuartersShowInCreationNewMatchWithId${matchId}">Подробнее..</a>\n`
 								: ""
@@ -812,7 +808,7 @@ async function endOfGame(
 					dataAboutMatch.scoresInQuarters.forEach((score) => {
 						let [s1, s2] = score.split(":").map(Number);
 						i++;
-						dataAboutMatchText += `\n\n<b>• ${i}-й сегмент</b>\nСчет:  <b>${s1} : ${s2}</b>`;
+						dataAboutMatchText += `\n\n<b>• ${i}-й партия</b>\nСчет:  <b>${s1} : ${s2}</b>`;
 					});
 				}
 
@@ -900,8 +896,8 @@ async function endOfGame(
 						dataAboutMatch.startTime
 					}</b>\nДлительность: <b>${dataAboutMatch.timeOfAllGame}</b>${
 						moreAboutQuarters
-							? `\n<blockquote>Сегментов: <b>${dataAboutMatch.quarterOfGame} - <a href="https://t.me/${BotName}/?start=moreAboutQuartersHideInEndOfGameWithId${matchId}">cкрыть</a>${dataAboutMatchText}</b></blockquote>\n\n<b>Id матча:</b> <code>${matchId}</code>`
-							: `<blockquote>Сегментов: <b>${dataAboutMatch.quarterOfGame} - <a href="https://t.me/${BotName}/?start=moreAboutQuartersShowInEndOfGameWithId${matchId}">подробнее</a></b></blockquote>`
+							? `\n<blockquote>Партий: <b>${dataAboutMatch.quarterOfGame} - <a href="https://t.me/${BotName}/?start=moreAboutQuartersHideInEndOfGameWithId${matchId}">cкрыть</a>${dataAboutMatchText}</b></blockquote>\n\n<b>Id матча:</b> <code>${matchId}</code>`
+							: `<blockquote>Партий: <b>${dataAboutMatch.quarterOfGame} - <a href="https://t.me/${BotName}/?start=moreAboutQuartersShowInEndOfGameWithId${matchId}">подробнее</a></b></blockquote>`
 					}`,
 					{
 						parse_mode: "html",
@@ -1032,7 +1028,7 @@ async function endOfGame(
 							: ``
 					}\n\nПродолжить матч <b>${
 						dataAboutMatch.quarterOfGame + 1 == 2 ? "во" : "в"
-					} ${dataAboutMatch.quarterOfGame + 1}-м сегменте до ${parseInt(
+					} ${dataAboutMatch.quarterOfGame + 1}-й партии до ${parseInt(
 						dataAboutMatch.firstScoreTarget *
 							(dataAboutMatch.quarterOfGame + 1)
 					)} ${
@@ -1105,13 +1101,13 @@ async function endOfGame(
 												: "в"
 										} ${
 											dataAboutMatch.quarterOfGame + 1
-										}-м сегм ) ✅`,
+										}-м парт ) ✅`,
 										callback_data: `continueAndAddQuarterForMatchWithId${dataAboutMatch.matchId}`,
 									},
 								],
 								[
 									{
-										text: "⬅️Без сегмента",
+										text: "⬅️Без партий",
 										callback_data: `matchWithId${dataAboutMatch.matchId}`,
 									},
 									{
@@ -1175,7 +1171,7 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 								.toString()
 								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
 								matchData.quarterOfGame
-							} сегм.</b>\n<b><a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
+							} парт.</b>\n<b><a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
 								matchData.matchId
 							}">О матче</a> • <a href="https://t.me/${BotName}/?start=copySettingsFromMatchWithId${
 								matchData.matchId
@@ -1205,7 +1201,7 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 								.toString()
 								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
 								matchData.quarterOfGame
-							} сегм.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
+							} парт.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
 								matchData.matchId
 							}">О матче</a> • <a href="https://t.me/${BotName}/?start=copySettingsFromMatchWithId${
 								matchData.matchId
@@ -1234,7 +1230,7 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 								.toString()
 								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
 								matchData.quarterOfGame
-							} сегм.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
+							} парт.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
 								matchData.matchId
 							}">О матче</a> • <a href="https://t.me/${BotName}/?start=copySettingsFromMatchWithId${
 								matchData.matchId
@@ -1263,7 +1259,7 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 								.toString()
 								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
 								matchData.quarterOfGame
-							} сегм.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
+							} парт.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
 								matchData.matchId
 							}">О матче</a> • <a href="https://t.me/${BotName}/?start=copySettingsFromMatchWithId${
 								matchData.matchId
@@ -1292,7 +1288,7 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 								.toString()
 								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
 								matchData.quarterOfGame
-							} сегм.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
+							} парт.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
 								matchData.matchId
 							}">О матче</a> • <a href="https://t.me/${BotName}/?start=copySettingsFromMatchWithId${
 								matchData.matchId
@@ -1321,7 +1317,7 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 								.toString()
 								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
 								matchData.quarterOfGame
-							} сегм.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
+							} парт.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
 								matchData.matchId
 							}">О матче</a> • <a href="https://t.me/${BotName}/?start=copySettingsFromMatchWithId${
 								matchData.matchId
@@ -1568,7 +1564,7 @@ async function moreAboutMatch(chatId, matchId) {
 		let i = 1;
 		dataAboutMatch.scoresInQuarters.forEach((score) => {
 			let [s1, s2] = score.split(":").map(Number);
-			dataAboutMatchText += `\n\n<b>• ${i}-й сегмент</b>\nСчет:  <b>${s1} : ${s2}</b>`;
+			dataAboutMatchText += `\n\n<b>• ${i}-я партия</b>\nСчет:  <b>${s1} : ${s2}</b>`;
 			i++;
 		});
 
@@ -1645,7 +1641,7 @@ async function moreAboutMatch(chatId, matchId) {
 					: ``
 			}</b>Начало: <b>в ${dataAboutMatch.startTime}</b>\nДлительность: <b>${
 				dataAboutMatch.timeOfAllGame
-			}</b>\n<blockquote>Сегментов: <b>${
+			}</b>\n<blockquote>Партий: <b>${
 				dataAboutMatch.quarterOfGame
 			}${dataAboutMatchText}</b></blockquote>\n\n<b>Id матча:</b> <code>${matchId}</code>
 			`,
@@ -1777,7 +1773,7 @@ async function StartAll() {
 
 			try {
 				if (!usersData.find((obj) => obj.chatId === chatId)) {
-					await usersData.push({
+					usersData.push({
 						chatId: chatId,
 						login: message.from.first_name,
 						telegramFirstName: message.from.first_name,
@@ -1869,13 +1865,15 @@ async function StartAll() {
 								/^\/start resetNameForCommand(\d+)InCreationNewMatchWithId(\d+)$/
 							);
 
-							match[1] == 1
-								? (dataAboutUser.matchesData.find(
-										(obj) => obj.matchId == match[2]
-								  ).nameForCom1 = "Синие")
-								: (dataAboutUser.matchesData.find(
-										(obj) => obj.matchId == match[2]
-								  ).nameForCom2 = "Красные");
+							if (dataAboutUser.matchesData) {
+								match[1] == 1
+									? (dataAboutUser.matchesData.find(
+											(obj) => obj.matchId == match[2]
+									  ).nameForCom1 = "Синие")
+									: (dataAboutUser.matchesData.find(
+											(obj) => obj.matchId == match[2]
+									  ).nameForCom2 = "Красные");
+							}
 
 							CreationNewMatch(chatId, match[2], null);
 							break;
@@ -1961,12 +1959,13 @@ async function StartAll() {
 							dataAboutUser.writeNameForCo2 ||
 							(dataAboutUser.writeScoreTarget && /^\d+$/.test(text)))
 					) {
-						dataAboutUser.writeNameForCo1
+						dataAboutUser.writeNameForCo1 && dataAboutUser.matchesData
 							? ((dataAboutUser.matchesData.find(
 									(obj) => obj.matchId == dataAboutUser.currentMatchId
 							  ).nameForCom1 = text),
 							  (dataAboutUser.writeNameForCo1 = false))
-							: dataAboutUser.writeNameForCo2
+							: dataAboutUser.writeNameForCo2 &&
+							  dataAboutUser.matchesData
 							? ((dataAboutUser.matchesData.find(
 									(obj) => obj.matchId == dataAboutUser.currentMatchId
 							  ).nameForCom2 = text),
@@ -2004,8 +2003,26 @@ async function StartAll() {
 							}
 							break;
 						case "/restart":
+							if (chatId == qu1z3xId || chatId == jackId) {
+								await bot
+									.sendMessage(chatId, "ㅤ")
+									.then(
+										(message) =>
+											(dataAboutUser.messageId = message.message_id)
+									);
+
+								menuHome(chatId);
+								break;
+							}
 						case "/start":
-							firstMeeting(chatId);
+							await bot
+								.sendMessage(chatId, "ㅤ")
+								.then(
+									(message) =>
+										(dataAboutUser.messageId = message.message_id)
+								);
+
+							firstMeeting(chatId, 1);
 							break;
 						case "":
 							break;
@@ -2075,136 +2092,164 @@ async function StartAll() {
 
 			if (dataAboutUser) {
 				dataAboutUser.messageId = query.message.message_id;
-			}
 
-			if (data.includes("firstMeeting")) {
-				match = data.match(/^firstMeeting(\d+)$/);
+				if (data.includes("firstMeeting")) {
+					match = data.match(/^firstMeeting(\d+)$/);
 
-				firstMeeting(chatId, parseInt(match[1]));
-			}
-
-			let matchId,
-				co1Score = 0,
-				co2Score = 0;
-			if (data.includes("upScore") || data.includes("downScore")) {
-				dataAboutUser.writeco1score = false;
-				dataAboutUser.writeco2score = false;
-
-				if (data.includes("upScore")) {
-					match = data.match(/^upScore(\d+)WithId(\d+)$/);
-					matchId = parseInt(match[2]);
-
-					[co1Score, co2Score] = dataAboutUser.matchesData
-						.find((obj) => obj.matchId == matchId)
-						.score.split(":")
-						.map(Number);
-
-					if (parseInt(match[1]) == 1)
-						if (
-							!dataAboutUser.matchesData.find(
-								(obj) => obj.matchId == matchId
-							).scoreTarget ||
-							dataAboutUser.matchesData.find(
-								(obj) => obj.matchId == matchId
-							).scoreTarget >
-								co1Score + 1
-						) {
-							++co1Score;
-							dataAboutUser.matchesData.find(
-								(obj) => obj.matchId == matchId
-							).score = `${co1Score}:${co2Score}`;
-							GameScoreCounting(chatId, matchId);
-						} else {
-							++co1Score;
-							dataAboutUser.matchesData.find(
-								(obj) => obj.matchId == matchId
-							).score = `${co1Score}:${co2Score}`;
-
-							endOfGame(chatId, matchId, false, 2);
-						}
-
-					if (parseInt(match[1]) == 2)
-						if (
-							!dataAboutUser.matchesData.find(
-								(obj) => obj.matchId == matchId
-							).scoreTarget ||
-							dataAboutUser.matchesData.find(
-								(obj) => obj.matchId == matchId
-							).scoreTarget >
-								co2Score + 1
-						) {
-							++co2Score;
-							dataAboutUser.matchesData.find(
-								(obj) => obj.matchId == matchId
-							).score = `${co1Score}:${co2Score}`;
-							GameScoreCounting(chatId, matchId);
-						} else {
-							++co2Score;
-							dataAboutUser.matchesData.find(
-								(obj) => obj.matchId == matchId
-							).score = `${co1Score}:${co2Score}`;
-
-							endOfGame(chatId, matchId, false, 2);
-						}
+					firstMeeting(chatId, parseInt(match[1]));
 				}
 
-				if (data.includes("downScore")) {
-					match = data.match(/^downScore(\d+)WithId(\d+)$/);
+				let matchId,
+					co1Score = 0,
+					co2Score = 0;
+				if (data.includes("upScore") || data.includes("downScore")) {
+					dataAboutUser.writeco1score = false;
+					dataAboutUser.writeco2score = false;
+
+					if (data.includes("upScore")) {
+						match = data.match(/^upScore(\d+)WithId(\d+)$/);
+						matchId = parseInt(match[2]);
+
+						[co1Score, co2Score] = dataAboutUser.matchesData
+							.find((obj) => obj.matchId == matchId)
+							.score.split(":")
+							.map(Number);
+
+						if (parseInt(match[1]) == 1)
+							if (
+								!dataAboutUser.matchesData.find(
+									(obj) => obj.matchId == matchId
+								).scoreTarget ||
+								dataAboutUser.matchesData.find(
+									(obj) => obj.matchId == matchId
+								).scoreTarget >
+									co1Score + 1
+							) {
+								++co1Score;
+								dataAboutUser.matchesData.find(
+									(obj) => obj.matchId == matchId
+								).score = `${co1Score}:${co2Score}`;
+								GameScoreCounting(chatId, matchId);
+							} else {
+								++co1Score;
+								dataAboutUser.matchesData.find(
+									(obj) => obj.matchId == matchId
+								).score = `${co1Score}:${co2Score}`;
+
+								endOfGame(chatId, matchId, false, 2);
+							}
+
+						if (parseInt(match[1]) == 2)
+							if (
+								!dataAboutUser.matchesData.find(
+									(obj) => obj.matchId == matchId
+								).scoreTarget ||
+								dataAboutUser.matchesData.find(
+									(obj) => obj.matchId == matchId
+								).scoreTarget >
+									co2Score + 1
+							) {
+								++co2Score;
+								dataAboutUser.matchesData.find(
+									(obj) => obj.matchId == matchId
+								).score = `${co1Score}:${co2Score}`;
+								GameScoreCounting(chatId, matchId);
+							} else {
+								++co2Score;
+								dataAboutUser.matchesData.find(
+									(obj) => obj.matchId == matchId
+								).score = `${co1Score}:${co2Score}`;
+
+								endOfGame(chatId, matchId, false, 2);
+							}
+					}
+
+					if (data.includes("downScore")) {
+						match = data.match(/^downScore(\d+)WithId(\d+)$/);
+
+						matchId = parseInt(match[2]);
+
+						[co1Score, co2Score] = dataAboutUser.matchesData
+							.find((obj) => obj.matchId == matchId)
+							.score.split(":")
+							.map(Number);
+
+						if (parseInt(match[1]) == 1) co1Score -= 1;
+						if (parseInt(match[1]) == 2) co2Score -= 1;
+
+						dataAboutUser.matchesData.find(
+							(obj) => obj.matchId == matchId
+						).score = `${co1Score}:${co2Score}`;
+						GameScoreCounting(chatId, matchId);
+					}
+				}
+
+				if (data.includes("CreationNewMatchWithSportNum")) {
+					match = data.match(/^CreationNewMatchWithSportNum(\d+)$/);
+
+					CreationNewMatch(chatId, null, match[1]);
+				}
+
+				if (data.includes("toggleWriteScore")) {
+					match = data.match(/^toggleWriteScore(\d+)WithId(\d+)$/);
 
 					matchId = parseInt(match[2]);
 
-					[co1Score, co2Score] = dataAboutUser.matchesData
-						.find((obj) => obj.matchId == matchId)
-						.score.split(":")
-						.map(Number);
+					if (parseInt(match[1]) == 1) {
+						dataAboutUser.writeco1score = !dataAboutUser.writeco1score;
+						dataAboutUser.writeco2score = false;
+					} else if (parseInt(match[1]) == 2) {
+						dataAboutUser.writeco1score = false;
+						dataAboutUser.writeco2score = !dataAboutUser.writeco2score;
+					}
 
-					if (parseInt(match[1]) == 1) co1Score -= 1;
-					if (parseInt(match[1]) == 2) co2Score -= 1;
-
-					dataAboutUser.matchesData.find(
-						(obj) => obj.matchId == matchId
-					).score = `${co1Score}:${co2Score}`;
 					GameScoreCounting(chatId, matchId);
 				}
-			}
 
-			if (data.includes("CreationNewMatchWithSportNum")) {
-				match = data.match(/^CreationNewMatchWithSportNum(\d+)$/);
+				if (data.includes("matchWithId")) {
+					match = data.match(/^matchWithId(\d+)$/);
 
-				CreationNewMatch(chatId, null, match[1]);
-			}
-
-			if (data.includes("toggleWriteScore")) {
-				match = data.match(/^toggleWriteScore(\d+)WithId(\d+)$/);
-
-				matchId = parseInt(match[2]);
-
-				if (parseInt(match[1]) == 1) {
-					dataAboutUser.writeco1score = !dataAboutUser.writeco1score;
-					dataAboutUser.writeco2score = false;
-				} else if (parseInt(match[1]) == 2) {
-					dataAboutUser.writeco1score = false;
-					dataAboutUser.writeco2score = !dataAboutUser.writeco2score;
+					GameScoreCounting(chatId, match[1]);
 				}
 
-				GameScoreCounting(chatId, matchId);
-			}
+				if (data.includes("settingsForMatchWithId")) {
+					match = data.match(/^settingsForMatchWithId(\d+)$/);
 
-			if (data.includes("matchWithId")) {
-				match = data.match(/^matchWithId(\d+)$/);
+					CreationNewMatch(chatId, match[1]);
+				}
 
-				GameScoreCounting(chatId, match[1]);
-			}
+				if (data.includes("addQuarterWithId")) {
+					try {
+						match = data.match(/^addQuarterWithId(\d+)$/);
 
-			if (data.includes("settingsForMatchWithId")) {
-				match = data.match(/^settingsForMatchWithId(\d+)$/);
+						matchId = parseInt(match[1]);
 
-				CreationNewMatch(chatId, match[1]);
-			}
+						let [co1Score, co2Score] = dataAboutUser.matchesData
+							.find((obj) => obj.matchId == matchId)
+							.score.split(":")
+							.map(Number);
 
-			if (data.includes("addQuarterWithId")) {
-				try {
-					match = data.match(/^addQuarterWithId(\d+)$/);
+						dataAboutUser.matchesData
+							.find((obj) => obj.matchId == matchId)
+							.scoresInQuarters.push(`${co1Score}:${co2Score}`);
+
+						dataAboutUser.matchesData.find(
+							(obj) => obj.matchId == matchId
+						).quarterOfGame += 1;
+
+						GameScoreCounting(chatId, matchId);
+					} catch (error) {
+						console.log(error);
+						sendDataAboutError(
+							chatId,
+							dataAboutUser.login,
+							`${String(error)}`
+						);
+					}
+				}
+
+				if (data.includes("continueAndAddQuarterForMatchWithId")) {
+					match = data.match(/^continueAndAddQuarterForMatchWithId(\d+)$/);
 
 					matchId = parseInt(match[1]);
 
@@ -2221,205 +2266,185 @@ async function StartAll() {
 						(obj) => obj.matchId == matchId
 					).quarterOfGame += 1;
 
-					GameScoreCounting(chatId, matchId);
-				} catch (error) {
-					console.log(error);
-					sendDataAboutError(
+					dataAboutUser.matchesData.find(
+						(obj) => obj.matchId == matchId
+					).scoreTarget =
+						dataAboutUser.matchesData.find(
+							(obj) => obj.matchId == matchId
+						).firstScoreTarget *
+						dataAboutUser.matchesData.find(
+							(obj) => obj.matchId == matchId
+						).quarterOfGame;
+
+					GameScoreCounting(chatId, parseInt(match[1]));
+				}
+
+				if (data.includes("endOfGameWithId")) {
+					match = data.match(/^endOfGameWithId(\d+)$/);
+
+					endOfGame(chatId, parseInt(match[1]));
+				}
+
+				if (data.includes("historyOfMatchesWithSportNumForHistory")) {
+					match = data.match(
+						/^historyOfMatchesWithSportNumForHistory(\d+)$/
+					);
+
+					historyOfMatches(chatId, parseInt(match[1]));
+				}
+
+				if (data.includes("copySettingsFromMatchWithId")) {
+					match = data.match(/^copySettingsFromMatchWithId(\d+)$/);
+
+					CreationNewMatch(
 						chatId,
-						dataAboutUser.login,
-						`${String(error)}`
+						null,
+						null,
+						null,
+						null,
+						null,
+						parseInt(match[1])
 					);
 				}
-			}
 
-			if (data.includes("continueAndAddQuarterForMatchWithId")) {
-				match = data.match(/^continueAndAddQuarterForMatchWithId(\d+)$/);
+				//? Клавиатура
 
-				matchId = parseInt(match[1]);
+				switch (data) {
+					case "judgeMenu":
+						JudgeMenu(chatId);
+						break;
+					case "exit":
+						menuHome(chatId);
+						break;
+					case "netsporta":
+						netsporta(chatId);
+						break;
+					case "gameScore":
+						dataAboutUser.writeco1score = false;
+						dataAboutUser.writeco2score = false;
 
-				let [co1Score, co2Score] = dataAboutUser.matchesData
-					.find((obj) => obj.matchId == matchId)
-					.score.split(":")
-					.map(Number);
-
-				dataAboutUser.matchesData
-					.find((obj) => obj.matchId == matchId)
-					.scoresInQuarters.push(`${co1Score}:${co2Score}`);
-
-				dataAboutUser.matchesData.find(
-					(obj) => obj.matchId == matchId
-				).quarterOfGame += 1;
-
-				dataAboutUser.matchesData.find(
-					(obj) => obj.matchId == matchId
-				).scoreTarget =
-					dataAboutUser.matchesData.find((obj) => obj.matchId == matchId)
-						.firstScoreTarget *
-					dataAboutUser.matchesData.find((obj) => obj.matchId == matchId)
-						.quarterOfGame;
-
-				GameScoreCounting(chatId, parseInt(match[1]));
-			}
-
-			if (data.includes("endOfGameWithId")) {
-				match = data.match(/^endOfGameWithId(\d+)$/);
-
-				endOfGame(chatId, parseInt(match[1]));
-			}
-
-			if (data.includes("historyOfMatchesWithSportNumForHistory")) {
-				match = data.match(/^historyOfMatchesWithSportNumForHistory(\d+)$/);
-
-				historyOfMatches(chatId, parseInt(match[1]));
-			}
-
-			if (data.includes("copySettingsFromMatchWithId")) {
-				match = data.match(/^copySettingsFromMatchWithId(\d+)$/);
-
-				CreationNewMatch(
-					chatId,
-					null,
-					null,
-					null,
-					null,
-					null,
-					parseInt(match[1])
-				);
-			}
-
-			//? Клавиатура
-
-			switch (data) {
-				case "judgeMenu":
-					JudgeMenu(chatId);
-					break;
-				case "exit":
-					menuHome(chatId);
-					break;
-				case "netsporta":
-					netsporta(chatId);
-					break;
-				case "gameScore":
-					dataAboutUser.writeco1score = false;
-					dataAboutUser.writeco2score = false;
-
-					while (
-						dataAboutUser.matchesData[
-							dataAboutUser.matchesData.indexOf(
-								dataAboutUser.matchesData.find(
-									(obj) => obj.score == "0:0" && obj.quarterOfGame == 1
+						while (
+							dataAboutUser.matchesData[
+								dataAboutUser.matchesData.indexOf(
+									dataAboutUser.matchesData.find(
+										(obj) =>
+											obj.score == "0:0" && obj.quarterOfGame == 1
+									)
 								)
-							)
-						]
-					) {
-						dataAboutUser.matchesData[
-							dataAboutUser.matchesData.indexOf(
-								dataAboutUser.matchesData.find(
-									(obj) => obj.score == "0:0" && obj.quarterOfGame == 1
+							]
+						) {
+							dataAboutUser.matchesData[
+								dataAboutUser.matchesData.indexOf(
+									dataAboutUser.matchesData.find(
+										(obj) =>
+											obj.score == "0:0" && obj.quarterOfGame == 1
+									)
 								)
-							)
-						] = [];
-					}
+							] = [];
+						}
 
-					if (
-						!dataAboutUser.matchesData[
-							dataAboutUser.matchesData.indexOf(
-								dataAboutUser.matchesData.find(
-									(obj) => obj.score == "0:0" && obj.quarterOfGame == 1
+						if (
+							!dataAboutUser.matchesData[
+								dataAboutUser.matchesData.indexOf(
+									dataAboutUser.matchesData.find(
+										(obj) =>
+											obj.score == "0:0" && obj.quarterOfGame == 1
+									)
 								)
-							)
-						]
-					) {
-						// Очищаем массив scoreHistoryButtons
-						scoreHistoryButtons = [];
+							]
+						) {
+							// Очищаем массив scoreHistoryButtons
+							scoreHistoryButtons = [];
 
-						dataAboutUser.matchesData.forEach(async (match) => {
-							if (match.isOver == false) {
-								await scoreHistoryButtons.push([
-									{
-										text: `${
-											match.sportNum == 1
-												? "🏀"
-												: `${
-														match.sportNum == 2
-															? "🏐"
-															: `${
-																	match.sportNum == 3
-																		? "⚽"
-																		: `${
-																				match.sportNum == 4
-																					? "🏓"
-																					: `${
-																							match.sportNum ==
-																							5
-																								? "⚙️"
-																								: ``
-																					  }`
-																		  }`
-															  }`
-												  }`
-										} Продолжить ( ${match.score} ) - ${
-											match.quarterOfGame
-										}-й`,
-										callback_data: `matchWithId${match.matchId}`,
-									},
-								]);
-							}
-						});
-					}
+							dataAboutUser.matchesData.forEach(async (match) => {
+								if (match.isOver == false) {
+									await scoreHistoryButtons.push([
+										{
+											text: `${
+												match.sportNum == 1
+													? "🏀"
+													: `${
+															match.sportNum == 2
+																? "🏐"
+																: `${
+																		match.sportNum == 3
+																			? "⚽"
+																			: `${
+																					match.sportNum ==
+																					4
+																						? "🏓"
+																						: `${
+																								match.sportNum ==
+																								5
+																									? "⚙️"
+																									: ``
+																						  }`
+																			  }`
+																  }`
+													  }`
+											} Продолжить ( ${match.score} ) - ${
+												match.quarterOfGame
+											}-й`,
+											callback_data: `matchWithId${match.matchId}`,
+										},
+									]);
+								}
+							});
+						}
 
-					GameScore(chatId);
-					break;
-				case "":
-					break;
-				case "":
-					break;
-				case "":
-					break;
-				case "":
-					break;
-				case "historyOfMatches":
-					historyOfMatches(chatId);
-					break;
-				case "settings":
-					if (dataAboutUser.userAction == "endOfGame")
-						endOfGame(chatId, dataAboutUser.currentMatchId);
-					else Settings(chatId);
-					break;
-				case "moreAboutUs":
-					moreAboutUs(chatId);
-					break;
-				case "motivation":
-					Motivation(chatId);
-					break;
+						GameScore(chatId);
+						break;
+					case "":
+						break;
+					case "":
+						break;
+					case "":
+						break;
+					case "":
+						break;
+					case "historyOfMatches":
+						historyOfMatches(chatId);
+						break;
+					case "settings":
+						if (dataAboutUser.userAction == "endOfGame")
+							endOfGame(chatId, dataAboutUser.currentMatchId);
+						else Settings(chatId);
+						break;
+					case "moreAboutUs":
+						moreAboutUs(chatId);
+						break;
+					case "motivation":
+						Motivation(chatId);
+						break;
 
-				case "":
-					break;
-				case "":
-					break;
-				case "":
-					break;
-				case "":
-					break;
-				case "":
-					break;
-				case "":
-					break;
-				case "":
-					break;
-				case "":
-					break;
-				case "":
-					break;
-				case "":
-					break;
-				default:
-					break;
-			}
+					case "":
+						break;
+					case "":
+						break;
+					case "":
+						break;
+					case "":
+						break;
+					case "":
+						break;
+					case "":
+						break;
+					case "":
+						break;
+					case "":
+						break;
+					case "":
+						break;
+					case "":
+						break;
+					default:
+						break;
+				}
 
-			// Для бота отладки
-			if (chatId != qu1z3xId && chatId != jackId) {
-				sendDataAboutButton(chatId, dataAboutUser.login, data);
+				// Для бота отладки
+				if (chatId != qu1z3xId && chatId != jackId) {
+					sendDataAboutButton(chatId, dataAboutUser.login, data);
+				}
 			}
 		});
 	} catch (error) {
