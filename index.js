@@ -175,8 +175,9 @@ async function firstMeeting(chatId, stageNum = 1) {
 					{
 						parse_mode: "html",
 						chat_id: chatId,
-						message_id: usersData.find((obj) => obj.chatId == chatId)
-							.messageId,
+						message_id: usersData.find(
+							(obj) => obj.chatId == chatId
+						).messageId,
 						disable_web_page_preview: true,
 						reply_markup: {
 							inline_keyboard: [
@@ -198,8 +199,9 @@ async function firstMeeting(chatId, stageNum = 1) {
 					{
 						parse_mode: "html",
 						chat_id: chatId,
-						message_id: usersData.find((obj) => obj.chatId == chatId)
-							.messageId,
+						message_id: usersData.find(
+							(obj) => obj.chatId == chatId
+						).messageId,
 						disable_web_page_preview: true,
 						reply_markup: {
 							inline_keyboard: [
@@ -209,7 +211,12 @@ async function firstMeeting(chatId, stageNum = 1) {
 										callback_data: "firstMeeting3",
 									},
 								],
-								[{ text: "⬅️Назад", callback_data: "firstMeeting1" }],
+								[
+									{
+										text: "⬅️Назад",
+										callback_data: "firstMeeting1",
+									},
+								],
 							],
 						},
 					}
@@ -232,7 +239,8 @@ async function menuHome(chatId) {
 		dataAboutUser.userAction = "menuHome";
 		rndNum = Math.floor(Math.random() * menuHomeText.length);
 
-		const dateNowHHNN = new Date().getHours() * 100 + new Date().getMinutes();
+		const dateNowHHNN =
+			new Date().getHours() * 100 + new Date().getMinutes();
 		if (dateNowHHNN < 1200 && dateNowHHNN >= 600)
 			textToSayHello = "Доброе утро";
 		else if (dateNowHHNN < 1700 && dateNowHHNN >= 1200)
@@ -258,7 +266,10 @@ async function menuHome(chatId) {
 							},
 						],
 						[
-							{ text: "Мотивация 🦅", callback_data: "motivation" },
+							{
+								text: "Мотивация 🦅",
+								callback_data: "motivation",
+							},
 							{ text: "Настройки ⚙️", callback_data: "settings" },
 						],
 						// [{ text: "📗 Судейский журнал 🧮", callback_data: "judgeMenu" }],
@@ -275,7 +286,7 @@ async function netsporta(chatId) {
 	try {
 		// Но у тебя есть возможность создать <b>собственный матч по своим правилам,</b> нажав на раздел <i><b>"Свой ⚙️"!</b></i> 😉
 		await bot.editMessageText(
-			`Помошник в <b><i>раннем доступе,</i></b> и к сожалению доступны <b>не все</b> виды спорта! ☹️\n\nЕсть идеи? <b>Напиши нам! 😃\n\n<a href="https://t.me/digfusionsupport">digfusion | поддержка</a></b>`,
+			`Помошник в <b><i>раннем доступе,</i></b> и к сожалению доступны <b>не все</b> виды спорта! ☹️\n\nЕсть идеи? <b>Напиши нам! 😃\n\n<a href="https://t.me/digsupport">digfusion | поддержка</a></b>`,
 			{
 				parse_mode: "html",
 				chat_id: chatId,
@@ -288,7 +299,7 @@ async function netsporta(chatId) {
 							{ text: "⬅️Назад", callback_data: "gameScore" },
 							{
 								text: "Написать✍️",
-								url: "https://t.me/digfusionsupport",
+								url: "https://t.me/digsupport",
 							},
 						],
 					],
@@ -438,8 +449,10 @@ async function CreationNewMatch(
 			);
 
 			dataAboutMatch.sportNum = dataAboutMatchForCopySettings.sportNum;
-			dataAboutMatch.nameForCom1 = dataAboutMatchForCopySettings.nameForCom1;
-			dataAboutMatch.nameForCom2 = dataAboutMatchForCopySettings.nameForCom2;
+			dataAboutMatch.nameForCom1 =
+				dataAboutMatchForCopySettings.nameForCom1;
+			dataAboutMatch.nameForCom2 =
+				dataAboutMatchForCopySettings.nameForCom2;
 			dataAboutMatch.scoreTarget =
 				dataAboutMatchForCopySettings.firstScoreTarget;
 			dataAboutMatch.firstScoreTarget =
@@ -463,7 +476,8 @@ async function CreationNewMatch(
 													dataAboutMatch.sportNum == 4
 														? `🏓 Пинг-Понг`
 														: `${
-																dataAboutMatch.sportNum == 5
+																dataAboutMatch.sportNum ==
+																5
 																	? `⚙️ Кастомный`
 																	: ""
 														  }`
@@ -471,7 +485,8 @@ async function CreationNewMatch(
 								  }`
 					  }`
 			}</i> • Параметры ⚙️\n\nКоманды:</b>\n\n${
-				dataAboutMatch.nameForCom1 && dataAboutMatch.nameForCom1 != "Синие"
+				dataAboutMatch.nameForCom1 &&
+				dataAboutMatch.nameForCom1 != "Синие"
 					? `<a href = "https://t.me/${BotName}/?start=resetNameForCommand1InCreationNewMatchWithId${matchId}">🔄️</a> ${dataAboutMatch.nameForCom1}`
 					: `${
 							processOfNamingC1
@@ -503,8 +518,12 @@ async function CreationNewMatch(
 										dataAboutMatch.scoreTarget % 10 == 1
 											? "очко"
 											: `${
-													dataAboutMatch.scoreTarget % 10 >= 2 &&
-													dataAboutMatch.scoreTarget % 10 <= 4
+													dataAboutMatch.scoreTarget %
+														10 >=
+														2 &&
+													dataAboutMatch.scoreTarget %
+														10 <=
+														4
 														? "очка"
 														: ``
 											  }`
@@ -514,7 +533,8 @@ async function CreationNewMatch(
 			{
 				parse_mode: "html",
 				chat_id: chatId,
-				message_id: usersData.find((obj) => obj.chatId == chatId).messageId,
+				message_id: usersData.find((obj) => obj.chatId == chatId)
+					.messageId,
 				disable_web_page_preview: true,
 				reply_markup: {
 					inline_keyboard: [
@@ -529,7 +549,9 @@ async function CreationNewMatch(
 							},
 							{
 								text: `${
-									dataAboutMatch.matchIsСreated ? "" : "Начать ✅"
+									dataAboutMatch.matchIsСreated
+										? ""
+										: "Начать ✅"
 								}`,
 								callback_data: `matchWithId${matchId}`,
 							},
@@ -584,7 +606,9 @@ async function GameScoreCounting(
 		co2Score = customCo2Score != null ? customCo2Score : co2Score;
 
 		if (customCo1Score != null || customCo2Score != null) {
-			dataAboutMatch.score = `${parseInt(co1Score)} : ${parseInt(co2Score)}`;
+			dataAboutMatch.score = `${parseInt(co1Score)} : ${parseInt(
+				co2Score
+			)}`;
 		}
 
 		if (dataAboutMatch.scoresInQuarters) {
@@ -610,7 +634,8 @@ async function GameScoreCounting(
 													dataAboutMatch.sportNum == 4
 														? `🏓 Пинг-Понг • <code>${dataAboutMatch.matchId}</code> 🎾`
 														: `${
-																dataAboutMatch.sportNum == 5
+																dataAboutMatch.sportNum ==
+																5
 																	? `⚙️ Кастомный  • <code>${dataAboutMatch.matchId}</code> ⚙️`
 																	: ""
 														  }`
@@ -638,8 +663,12 @@ async function GameScoreCounting(
 										dataAboutMatch.scoreTarget % 10 == 1
 											? "очко"
 											: `${
-													dataAboutMatch.scoreTarget % 10 >= 2 &&
-													dataAboutMatch.scoreTarget % 10 <= 4
+													dataAboutMatch.scoreTarget %
+														10 >=
+														2 &&
+													dataAboutMatch.scoreTarget %
+														10 <=
+														4
 														? "очка"
 														: ``
 											  }`
@@ -650,7 +679,7 @@ async function GameScoreCounting(
 				moreAboutQuarters
 					? `<blockquote><b><i>Партии:\n\n</i>${dataAboutMatchText}• ${
 							dataAboutMatch.quarterOfGame
-					  }-й партия\nСчет:  ${co1Score} : ${co2Score}\n\n</b>${
+					  }-я партия\nСчет:  ${co1Score} : ${co2Score}\n\n</b>${
 							dataAboutMatch.quarterOfGame > 1
 								? `<a href="https://t.me/${BotName}/?start=moreAboutQuartersHideInCreationNewMatchWithId${matchId}">Скрыть</a>\n`
 								: ""
@@ -679,7 +708,7 @@ async function GameScoreCounting(
 								callback_data: `upScore1WithId${matchId}`,
 							},
 							{
-								text: `${dataAboutMatch.quarterOfGame}-й`,
+								text: `${dataAboutMatch.quarterOfGame}-я`,
 								callback_data: `addQuarterWithId${matchId}`,
 							},
 							{
@@ -710,7 +739,9 @@ async function GameScoreCounting(
 							{
 								text: `${co1Score > 0 ? `⬇️` : "🚫"}`,
 								callback_data: `${
-									co1Score > 0 ? `downScore1WithId${matchId}` : "-"
+									co1Score > 0
+										? `downScore1WithId${matchId}`
+										: "-"
 								}`,
 							},
 							{
@@ -720,7 +751,9 @@ async function GameScoreCounting(
 							{
 								text: `${co2Score > 0 ? `⬇️` : "🚫"}`,
 								callback_data: `${
-									co2Score > 0 ? `downScore2WithId${matchId}` : "-"
+									co2Score > 0
+										? `downScore2WithId${matchId}`
+										: "-"
 								}`,
 							},
 						],
@@ -731,7 +764,9 @@ async function GameScoreCounting(
 							},
 							{
 								text: `${
-									co1Score != 0 || co2Score != 0 ? "Завершить❌" : ""
+									co1Score != 0 || co2Score != 0
+										? "Завершить❌"
+										: ""
 								}`,
 								callback_data: `endOfGameWithId${matchId}`,
 							},
@@ -796,8 +831,9 @@ async function endOfGame(
 
 				if (dataAboutMatch.timeOfAllGame == "") {
 					dataAboutMatch.timeOfAllGame = new Date(
-						Math.floor((new Date() - dataAboutMatch.startDate) / 1000) *
-							1000
+						Math.floor(
+							(new Date() - dataAboutMatch.startDate) / 1000
+						) * 1000
 					)
 						.toISOString()
 						.substr(14, 5);
@@ -808,7 +844,7 @@ async function endOfGame(
 					dataAboutMatch.scoresInQuarters.forEach((score) => {
 						let [s1, s2] = score.split(":").map(Number);
 						i++;
-						dataAboutMatchText += `\n\n<b>• ${i}-й партия</b>\nСчет:  <b>${s1} : ${s2}</b>`;
+						dataAboutMatchText += `\n\n<b>• ${i}-я партия</b>\nСчет:  <b>${s1} : ${s2}</b>`;
 					});
 				}
 
@@ -823,7 +859,8 @@ async function endOfGame(
 												dataAboutMatch.sportNum == 3
 													? "⚽"
 													: `${
-															dataAboutMatch.sportNum == 4
+															dataAboutMatch.sportNum ==
+															4
 																? "🏓"
 																: `${
 																		dataAboutMatch.sportNum ==
@@ -862,8 +899,14 @@ async function endOfGame(
 												(co1Score - co2Score) % 10 == 1
 													? "очко"
 													: `${
-															(co1Score - co2Score) % 10 >= 2 &&
-															(co1Score - co2Score) % 10 <= 4
+															(co1Score -
+																co2Score) %
+																10 >=
+																2 &&
+															(co1Score -
+																co2Score) %
+																10 <=
+																4
 																? "очка"
 																: ``
 													  }`
@@ -884,17 +927,22 @@ async function endOfGame(
 												(co2Score - co1Score) % 10 == 1
 													? "очко"
 													: `${
-															(co2Score - co1Score) % 10 >= 2 &&
-															(co2Score - co1Score) % 10 <= 4
+															(co2Score -
+																co1Score) %
+																10 >=
+																2 &&
+															(co2Score -
+																co1Score) %
+																10 <=
+																4
 																? "очка"
 																: ``
 													  }`
 										  }`
 							  }\n`
 							: ``
-					}</b>Начало: <b>в ${
-						dataAboutMatch.startTime
-					}</b>\nДлительность: <b>${dataAboutMatch.timeOfAllGame}</b>${
+					}</b>Начало: <b>в ${dataAboutMatch.startTime}</b>${
+						// \nДлительность: <b>${dataAboutMatch.timeOfAllGame}</b>
 						moreAboutQuarters
 							? `\n<blockquote>Партий: <b>${dataAboutMatch.quarterOfGame} - <a href="https://t.me/${BotName}/?start=moreAboutQuartersHideInEndOfGameWithId${matchId}">cкрыть</a>${dataAboutMatchText}</b></blockquote>\n\n<b>Id матча:</b> <code>${matchId}</code>`
 							: `<blockquote>Партий: <b>${dataAboutMatch.quarterOfGame} - <a href="https://t.me/${BotName}/?start=moreAboutQuartersShowInEndOfGameWithId${matchId}">подробнее</a></b></blockquote>`
@@ -902,8 +950,9 @@ async function endOfGame(
 					{
 						parse_mode: "html",
 						chat_id: chatId,
-						message_id: usersData.find((obj) => obj.chatId == chatId)
-							.messageId,
+						message_id: usersData.find(
+							(obj) => obj.chatId == chatId
+						).messageId,
 						disable_web_page_preview: true,
 						reply_markup: {
 							inline_keyboard: [
@@ -913,10 +962,12 @@ async function endOfGame(
 											dataAboutMatch.sportNum == 1
 												? "🏀"
 												: `${
-														dataAboutMatch.sportNum == 2
+														dataAboutMatch.sportNum ==
+														2
 															? "🏐"
 															: `${
-																	dataAboutMatch.sportNum == 3
+																	dataAboutMatch.sportNum ==
+																	3
 																		? "⚽"
 																		: `${
 																				dataAboutMatch.sportNum ==
@@ -967,7 +1018,8 @@ async function endOfGame(
 												dataAboutMatch.sportNum == 3
 													? `⚽ Футбол • <code>${dataAboutMatch.matchId}</code> 🏃`
 													: `${
-															dataAboutMatch.sportNum == 4
+															dataAboutMatch.sportNum ==
+															4
 																? `🏓 Пинг-Понг • <code>${dataAboutMatch.matchId}</code> 🎾`
 																: `${
 																		dataAboutMatch.sportNum ==
@@ -982,7 +1034,9 @@ async function endOfGame(
 						co1Score > co2Score
 							? `<u>${dataAboutMatch.nameForCom1}</u>`
 							: `${dataAboutMatch.nameForCom1}`
-					} ${numberToEmoji(co1Score)}  :  ${numberToEmoji(co2Score)} ${
+					} ${numberToEmoji(co1Score)}  :  ${numberToEmoji(
+						co2Score
+					)} ${
 						co2Score > co1Score
 							? `<u>${dataAboutMatch.nameForCom2}</u>`
 							: `${dataAboutMatch.nameForCom2}`
@@ -992,14 +1046,16 @@ async function endOfGame(
 									dataAboutMatch.nameForCom1
 							  }"</b> - достигла отметки в <b>${co1Score} ${
 									(co1Score >= 5 && co1Score <= 20) ||
-									(co1Score % 10 >= 5 && co1Score % 10 <= 9) ||
+									(co1Score % 10 >= 5 &&
+										co1Score % 10 <= 9) ||
 									co1Score % 10 == 0
 										? "очков"
 										: `${
 												co1Score % 10 == 1
 													? "очко"
 													: `${
-															co1Score % 10 >= 2 &&
+															co1Score % 10 >=
+																2 &&
 															co1Score % 10 <= 4
 																? "очка"
 																: ``
@@ -1011,14 +1067,16 @@ async function endOfGame(
 									dataAboutMatch.nameForCom2
 							  }"</b> - достигла отметки в <b>${co2Score} ${
 									(co2Score >= 5 && co2Score <= 20) ||
-									(co2Score % 10 >= 5 && co2Score % 10 <= 9) ||
+									(co2Score % 10 >= 5 &&
+										co2Score % 10 <= 9) ||
 									co2Score % 10 == 0
 										? "очков"
 										: `${
 												co2Score % 10 == 1
 													? "очко"
 													: `${
-															co2Score % 10 >= 2 &&
+															co2Score % 10 >=
+																2 &&
 															co2Score % 10 <= 4
 																? "очка"
 																: ``
@@ -1028,7 +1086,9 @@ async function endOfGame(
 							: ``
 					}\n\nПродолжить матч <b>${
 						dataAboutMatch.quarterOfGame + 1 == 2 ? "во" : "в"
-					} ${dataAboutMatch.quarterOfGame + 1}-й партии до ${parseInt(
+					} ${
+						dataAboutMatch.quarterOfGame + 1
+					}-я партии до ${parseInt(
 						dataAboutMatch.firstScoreTarget *
 							(dataAboutMatch.quarterOfGame + 1)
 					)} ${
@@ -1070,13 +1130,15 @@ async function endOfGame(
 										: `${
 												parseInt(
 													dataAboutMatch.firstScoreTarget *
-														(dataAboutMatch.quarterOfGame + 1)
+														(dataAboutMatch.quarterOfGame +
+															1)
 												) %
 													10 >=
 													2 &&
 												parseInt(
 													dataAboutMatch.firstScoreTarget *
-														(dataAboutMatch.quarterOfGame + 1)
+														(dataAboutMatch.quarterOfGame +
+															1)
 												) %
 													10 <=
 													4
@@ -1088,15 +1150,17 @@ async function endOfGame(
 					{
 						parse_mode: "html",
 						chat_id: chatId,
-						message_id: usersData.find((obj) => obj.chatId == chatId)
-							.messageId,
+						message_id: usersData.find(
+							(obj) => obj.chatId == chatId
+						).messageId,
 						disable_web_page_preview: true,
 						reply_markup: {
 							inline_keyboard: [
 								[
 									{
 										text: `Продолжить ( ${
-											dataAboutMatch.quarterOfGame + 1 == 2
+											dataAboutMatch.quarterOfGame + 1 ==
+											2
 												? "во"
 												: "в"
 										} ${
@@ -1153,7 +1217,8 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 														matchData.sportNum == 3
 															? "⚽ Футбол"
 															: `${
-																	matchData.sportNum == 4
+																	matchData.sportNum ==
+																	4
 																		? "🏓 Пинг-понг"
 																		: `${
 																				matchData.sportNum ==
@@ -1169,7 +1234,9 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 							}.${matchData.startDate
 								.getFullYear()
 								.toString()
-								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
+								.slice(
+									-2
+								)}\n<b>${co1Score}  :  ${co2Score}  -  ${
 								matchData.quarterOfGame
 							} парт.</b>\n<b><a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
 								matchData.matchId
@@ -1199,7 +1266,9 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 							}.${matchData.startDate
 								.getFullYear()
 								.toString()
-								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
+								.slice(
+									-2
+								)}\n<b>${co1Score}  :  ${co2Score}  -  ${
 								matchData.quarterOfGame
 							} парт.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
 								matchData.matchId
@@ -1228,7 +1297,9 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 							}.${matchData.startDate
 								.getFullYear()
 								.toString()
-								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
+								.slice(
+									-2
+								)}\n<b>${co1Score}  :  ${co2Score}  -  ${
 								matchData.quarterOfGame
 							} парт.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
 								matchData.matchId
@@ -1257,7 +1328,9 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 							}.${matchData.startDate
 								.getFullYear()
 								.toString()
-								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
+								.slice(
+									-2
+								)}\n<b>${co1Score}  :  ${co2Score}  -  ${
 								matchData.quarterOfGame
 							} парт.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
 								matchData.matchId
@@ -1286,7 +1359,9 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 							}.${matchData.startDate
 								.getFullYear()
 								.toString()
-								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
+								.slice(
+									-2
+								)}\n<b>${co1Score}  :  ${co2Score}  -  ${
 								matchData.quarterOfGame
 							} парт.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
 								matchData.matchId
@@ -1315,7 +1390,9 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 							}.${matchData.startDate
 								.getFullYear()
 								.toString()
-								.slice(-2)}\n<b>${co1Score}  :  ${co2Score}  -  ${
+								.slice(
+									-2
+								)}\n<b>${co1Score}  :  ${co2Score}  -  ${
 								matchData.quarterOfGame
 							} парт.\n<a href="https://t.me/${BotName}/?start=moreAboutMatchWithId${
 								matchData.matchId
@@ -1369,12 +1446,14 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 														? "игра"
 														: `${
 																dataAboutUser.matchesData.filter(
-																	(obj) => obj.isOver
+																	(obj) =>
+																		obj.isOver
 																).length %
 																	10 >=
 																	2 &&
 																dataAboutUser.matchesData.filter(
-																	(obj) => obj.isOver
+																	(obj) =>
+																		obj.isOver
 																).length %
 																	10 <=
 																	4
@@ -1387,37 +1466,43 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 										dataAboutUser.matchesData.filter(
 											(obj) =>
 												obj.isOver &&
-												obj.sportNum == sportNumForHistory
+												obj.sportNum ==
+													sportNumForHistory
 										).length
 								  } ${
 										(dataAboutUser.matchesData.filter(
 											(obj) =>
 												obj.isOver &&
-												obj.sportNum == sportNumForHistory
+												obj.sportNum ==
+													sportNumForHistory
 										).length >= 5 &&
 											dataAboutUser.matchesData.filter(
 												(obj) =>
 													obj.isOver &&
-													obj.sportNum == sportNumForHistory
+													obj.sportNum ==
+														sportNumForHistory
 											).length <= 20) ||
 										(dataAboutUser.matchesData.filter(
 											(obj) =>
 												obj.isOver &&
-												obj.sportNum == sportNumForHistory
+												obj.sportNum ==
+													sportNumForHistory
 										).length %
 											10 >=
 											5 &&
 											dataAboutUser.matchesData.filter(
 												(obj) =>
 													obj.isOver &&
-													obj.sportNum == sportNumForHistory
+													obj.sportNum ==
+														sportNumForHistory
 											).length %
 												10 <=
 												9) ||
 										dataAboutUser.matchesData.filter(
 											(obj) =>
 												obj.isOver &&
-												obj.sportNum == sportNumForHistory
+												obj.sportNum ==
+													sportNumForHistory
 										).length %
 											10 ==
 											0
@@ -1426,7 +1511,8 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 													dataAboutUser.matchesData.filter(
 														(obj) =>
 															obj.isOver &&
-															obj.sportNum == sportNumForHistory
+															obj.sportNum ==
+																sportNumForHistory
 													).length %
 														10 ==
 													1
@@ -1459,13 +1545,16 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 			{
 				parse_mode: "html",
 				chat_id: chatId,
-				message_id: usersData.find((obj) => obj.chatId == chatId).messageId,
+				message_id: usersData.find((obj) => obj.chatId == chatId)
+					.messageId,
 				disable_web_page_preview: true,
 				reply_markup: {
 					inline_keyboard: [
 						[
 							{
-								text: `${sportNumForHistory == 0 ? `• Все •` : `Все`}`,
+								text: `${
+									sportNumForHistory == 0 ? `• Все •` : `Все`
+								}`,
 								callback_data: `${
 									sportNumForHistory == 0
 										? `-`
@@ -1477,7 +1566,11 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 									dataAboutUser.matchesData.filter(
 										(obj) => obj.isOver && obj.sportNum == 1
 									).length > 0
-										? `${sportNumForHistory == 1 ? `• 🏀 •` : `🏀`}`
+										? `${
+												sportNumForHistory == 1
+													? `• 🏀 •`
+													: `🏀`
+										  }`
 										: ``
 								}`,
 								callback_data: `${
@@ -1491,7 +1584,11 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 									dataAboutUser.matchesData.filter(
 										(obj) => obj.isOver && obj.sportNum == 2
 									).length > 0
-										? `${sportNumForHistory == 2 ? `• 🏐 •` : `🏐`}`
+										? `${
+												sportNumForHistory == 2
+													? `• 🏐 •`
+													: `🏐`
+										  }`
 										: ``
 								}`,
 								callback_data: `${
@@ -1505,7 +1602,11 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 									dataAboutUser.matchesData.filter(
 										(obj) => obj.isOver && obj.sportNum == 3
 									).length > 0
-										? `${sportNumForHistory == 3 ? `• ⚽ •` : `⚽`}`
+										? `${
+												sportNumForHistory == 3
+													? `• ⚽ •`
+													: `⚽`
+										  }`
 										: ``
 								}`,
 								callback_data: `${
@@ -1519,7 +1620,11 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 									dataAboutUser.matchesData.filter(
 										(obj) => obj.isOver && obj.sportNum == 4
 									).length > 0
-										? `${sportNumForHistory == 4 ? `• 🏓 •` : `🏓`}`
+										? `${
+												sportNumForHistory == 4
+													? `• 🏓 •`
+													: `🏓`
+										  }`
 										: ``
 								}`,
 								callback_data: `${
@@ -1539,7 +1644,10 @@ async function historyOfMatches(chatId, sportNumForHistory = 0) {
 						],
 						[
 							{ text: "⬅️Назад", callback_data: "settings" },
-							{ text: "Обновить🔄️", callback_data: "historyOfMatches" },
+							{
+								text: "Обновить🔄️",
+								callback_data: "historyOfMatches",
+							},
 						],
 					],
 				},
@@ -1582,14 +1690,17 @@ async function moreAboutMatch(chatId, matchId) {
 													dataAboutMatch.sportNum == 4
 														? `Пинг-Понг 🏓`
 														: `${
-																dataAboutMatch.sportNum == 5
+																dataAboutMatch.sportNum ==
+																5
 																	? `Кастомный ⚙️`
 																	: ""
 														  }`
 											  }`
 								  }`
 					  }`
-			}</i>\n\n${numberToEmoji(co1Score)} : ${numberToEmoji(co2Score)}\n\n${
+			}</i>\n\n${numberToEmoji(co1Score)} : ${numberToEmoji(
+				co2Score
+			)}\n\n${
 				co1Score == co2Score
 					? "🤷‍♂️ Ничья 🤷 \n"
 					: co1Score > co2Score
@@ -1603,8 +1714,11 @@ async function moreAboutMatch(chatId, matchId) {
 					: co1Score > co2Score
 					? `${
 							dataAboutMatch.nameForCom2
-					  } - ${co2Score}🥈\n\n</b>Отрыв: <b>${co1Score - co2Score} ${
-							(co1Score - co2Score >= 5 && co1Score - co2Score <= 20) ||
+					  } - ${co2Score}🥈\n\n</b>Отрыв: <b>${
+							co1Score - co2Score
+					  } ${
+							(co1Score - co2Score >= 5 &&
+								co1Score - co2Score <= 20) ||
 							(parseInt(co1Score - co2Score) % 10 >= 5 &&
 								parseInt(co1Score - co2Score) % 10 <= 9)
 								? "очков"
@@ -1612,8 +1726,12 @@ async function moreAboutMatch(chatId, matchId) {
 										(co1Score - co2Score) % 10 == 1
 											? "очко"
 											: `${
-													(co1Score - co2Score) % 10 >= 2 &&
-													(co1Score - co2Score) % 10 <= 4
+													(co1Score - co2Score) %
+														10 >=
+														2 &&
+													(co1Score - co2Score) %
+														10 <=
+														4
 														? "очка"
 														: ``
 											  }`
@@ -1622,8 +1740,11 @@ async function moreAboutMatch(chatId, matchId) {
 					: co1Score < co2Score
 					? `${
 							dataAboutMatch.nameForCom1
-					  } - ${co1Score}🥈\n\n</b>Отрыв: <b>${co2Score - co1Score} ${
-							(co2Score - co1Score >= 5 && co2Score - co1Score <= 20) ||
+					  } - ${co1Score}🥈\n\n</b>Отрыв: <b>${
+							co2Score - co1Score
+					  } ${
+							(co2Score - co1Score >= 5 &&
+								co2Score - co1Score <= 20) ||
 							(parseInt(co2Score - co1Score) % 10 >= 5 &&
 								parseInt(co2Score - co1Score) % 10 <= 9)
 								? "очков"
@@ -1631,15 +1752,21 @@ async function moreAboutMatch(chatId, matchId) {
 										(co2Score - co1Score) % 10 == 1
 											? "очко"
 											: `${
-													(co2Score - co1Score) % 10 >= 2 &&
-													(co2Score - co1Score) % 10 <= 4
+													(co2Score - co1Score) %
+														10 >=
+														2 &&
+													(co2Score - co1Score) %
+														10 <=
+														4
 														? "очка"
 														: ``
 											  }`
 								  }`
 					  }\n`
 					: ``
-			}</b>Начало: <b>в ${dataAboutMatch.startTime}</b>\nДлительность: <b>${
+			}</b>Начало: <b>в ${
+				dataAboutMatch.startTime
+			}</b>\nДлительность: <b>${
 				dataAboutMatch.timeOfAllGame
 			}</b>\n<blockquote>Партий: <b>${
 				dataAboutMatch.quarterOfGame
@@ -1648,12 +1775,16 @@ async function moreAboutMatch(chatId, matchId) {
 			{
 				parse_mode: "html",
 				chat_id: chatId,
-				message_id: usersData.find((obj) => obj.chatId == chatId).messageId,
+				message_id: usersData.find((obj) => obj.chatId == chatId)
+					.messageId,
 				disable_web_page_preview: true,
 				reply_markup: {
 					inline_keyboard: [
 						[
-							{ text: "⬅️Назад", callback_data: "historyOfMatches" },
+							{
+								text: "⬅️Назад",
+								callback_data: "historyOfMatches",
+							},
 							{
 								text: "Повторить 🔄️",
 								callback_data: `copySettingsFromMatchWithId${dataAboutMatch.matchId}`,
@@ -1676,17 +1807,18 @@ async function Motivation(chatId) {
 		rndNum = Math.floor(Math.random() * motivationPhrases.length);
 
 		bot.editMessageText(
-			`<b><i>🔥 Мотивация 🦅</i>\n\n<code>"${motivationPhrases[rndNum]}"</code>\n\n© ChatGPT</b>`,
+			`<b><i>🔥 Мотивация 🦅</i>\n\n<code>"${motivationPhrases[rndNum]}"</code>\n\n© Нейросетивичок</b> - <a href="https://t.me/digneurobot">попробовать</a>`,
 			{
 				parse_mode: "html",
 				chat_id: chatId,
-				message_id: usersData.find((obj) => obj.chatId == chatId).messageId,
+				message_id: usersData.find((obj) => obj.chatId == chatId)
+					.messageId,
 				disable_web_page_preview: true,
 				reply_markup: {
 					inline_keyboard: [
 						[
 							{ text: "⬅️В меню", callback_data: "exit" },
-							{ text: "Еще 🔄️", callback_data: "motivation" },
+							{ text: "Еще ✨", callback_data: "motivation" },
 						],
 					],
 				},
@@ -1703,20 +1835,53 @@ async function Settings(chatId) {
 
 	try {
 		await bot.editMessageText(
-			`<b><i>🛠️ Настройки • <code>${chatId}</code> ⚙️</i>\n\nДанные:\n</b>Логин чемпиона: <b>${dataAboutUser.login}\n\n</b>Раздел в <b>бета-тестировании! 😉</b>`,
+			`<b><i>🛠️ Настройки • <code>${chatId}</code> ⚙️</i>\n\nДанные:\n</b>Логин чемпиона: <b>${
+				dataAboutUser.login
+			}\n\nСтатистика:</b>\nВсего: <b>${
+				dataAboutUser.matchesData.length
+			} ${
+				(dataAboutUser.matchesData.length % 100 >= 5 &&
+					dataAboutUser.matchesData.length % 100 <= 20) ||
+				(dataAboutUser.matchesData.length % 10 >= 5 &&
+					dataAboutUser.matchesData.length % 10 <= 9) ||
+				dataAboutUser.matchesData.length % 10 == 0
+					? "матчей"
+					: `${
+							dataAboutUser.matchesData.length % 10 == 1
+								? "матч"
+								: `${
+										dataAboutUser.matchesData.length % 10 >=
+											2 &&
+										dataAboutUser.matchesData.length % 10 <=
+											4
+											? "матча"
+											: ``
+								  }`
+					  }`
+			}</b>${
+				dataAboutUser.matchesData.length == 0
+					? ` - <a href="https://t.me/${BotName}/?start=gameScore">играть</a>`
+					: ``
+			}`,
 			{
 				parse_mode: "html",
 				chat_id: chatId,
 				message_id: usersData.find((obj) => obj.chatId === chatId)
 					.messageId,
+				disable_web_page_preview: true,
 				reply_markup: {
 					inline_keyboard: [
-						[{ text: "История 💾", callback_data: "historyOfMatches" }],
+						[
+							{
+								text: "История 💾",
+								callback_data: "historyOfMatches",
+							},
+						],
 						[
 							{ text: "⬅️Назад", callback_data: "exit" },
 							{
 								text: "digfusion❔",
-								callback_data: "moreAboutUs",
+								callback_data: "digfusionInfo",
 							},
 						],
 					],
@@ -1728,16 +1893,17 @@ async function Settings(chatId) {
 	}
 }
 
-async function moreAboutUs(chatId) {
+async function digfusionInfo(chatId) {
 	const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
 	try {
 		await bot.editMessageText(
-			`<b><i>❔digfusion • О нас 💁🏻‍♂️</i></b>\n\nКомпания <b><i>digfusion</i></b> - <b>начинающий стартап,</b> разрабатывающий <b>свои приложения</b> и предоставляющий услуги по <b>созданию чат-ботов</b> различных типов! ☑️\n\nПросмотреть все <b>наши проекты, реальные отзывы, каталог услуг</b> и <b>прочую информацию о компании</b> можно в нашем <b>Telegram канале</b> и <b>боте-консультанте! 🤗\n\n<a href="https://t.me/digfusion">digfusion | инфо</a> • <a href="https://t.me/digfusionbot">digfusion | услуги</a></b>`,
+			`<b><i>❔digfusion • О нас 💁🏻‍♂️</i></b>\n\n<i>Это приложение разработано <b>digfusion</b> с душой 🤍</i>\n\n<b><i>digfusion</i></b> - <b>начинающий стартап,</b> разрабатывающий <b>свои приложения</b> и предоставляющий услуги по <b>созданию чат-ботов</b> различных типов! ☑️\n\nПросмотреть все <b>наши проекты, реальные отзывы, каталог услуг</b> и <b>прочую информацию о компании</b> можно в нашем <b>Telegram канале</b> и <b>боте-консультанте! 🤗\n\n<a href="https://t.me/digfusion">digfusion | инфо</a> • <a href="https://t.me/digfusionbot">digfusion | услуги</a></b>`,
 			{
 				parse_mode: "html",
 				chat_id: chatId,
-				message_id: usersData.find((obj) => obj.chatId == chatId).messageId,
+				message_id: usersData.find((obj) => obj.chatId == chatId)
+					.messageId,
 				disable_web_page_preview: true,
 				reply_markup: {
 					inline_keyboard: [
@@ -1745,7 +1911,7 @@ async function moreAboutUs(chatId) {
 							{ text: "⬅️Назад", callback_data: "settings" },
 							{
 								text: "Поддержка 💭",
-								url: "https://t.me/digfusionsupport",
+								url: "https://t.me/digsupport",
 							},
 						],
 					],
@@ -1886,16 +2052,27 @@ async function StartAll() {
 
 							dataAboutUser.writeScoreTarget = true;
 
-							CreationNewMatch(chatId, match[1], null, null, null, true);
+							CreationNewMatch(
+								chatId,
+								match[1],
+								null,
+								null,
+								null,
+								true
+							);
 							break;
 
 						case text.includes("/start moreAboutMatchWithId"):
-							match = text.match(/^\/start moreAboutMatchWithId(\d+)$/);
+							match = text.match(
+								/^\/start moreAboutMatchWithId(\d+)$/
+							);
 
 							moreAboutMatch(chatId, match[1]);
 
 							break;
-						case text.includes("/start copySettingsFromMatchWithId"):
+						case text.includes(
+							"/start copySettingsFromMatchWithId"
+						):
 							match = text.match(
 								/^\/start copySettingsFromMatchWithId(\d+)$/
 							);
@@ -1957,27 +2134,37 @@ async function StartAll() {
 						!text.includes("/start") &&
 						(dataAboutUser.writeNameForCo1 ||
 							dataAboutUser.writeNameForCo2 ||
-							(dataAboutUser.writeScoreTarget && /^\d+$/.test(text)))
+							(dataAboutUser.writeScoreTarget &&
+								/^\d+$/.test(text)))
 					) {
-						dataAboutUser.writeNameForCo1 && dataAboutUser.matchesData
+						dataAboutUser.writeNameForCo1 &&
+						dataAboutUser.matchesData
 							? ((dataAboutUser.matchesData.find(
-									(obj) => obj.matchId == dataAboutUser.currentMatchId
+									(obj) =>
+										obj.matchId ==
+										dataAboutUser.currentMatchId
 							  ).nameForCom1 = text),
 							  (dataAboutUser.writeNameForCo1 = false))
 							: dataAboutUser.writeNameForCo2 &&
 							  dataAboutUser.matchesData
 							? ((dataAboutUser.matchesData.find(
-									(obj) => obj.matchId == dataAboutUser.currentMatchId
+									(obj) =>
+										obj.matchId ==
+										dataAboutUser.currentMatchId
 							  ).nameForCom2 = text),
 							  (dataAboutUser.writeNameForCo2 = false))
 							: ``;
 
 						dataAboutUser.writeScoreTarget && /^\d+$/.test(text)
 							? ((dataAboutUser.matchesData.find(
-									(obj) => obj.matchId == dataAboutUser.currentMatchId
+									(obj) =>
+										obj.matchId ==
+										dataAboutUser.currentMatchId
 							  ).scoreTarget = parseInt(text)),
 							  (dataAboutUser.matchesData.find(
-									(obj) => obj.matchId == dataAboutUser.currentMatchId
+									(obj) =>
+										obj.matchId ==
+										dataAboutUser.currentMatchId
 							  ).firstScoreTarget = parseInt(text)),
 							  (dataAboutUser.writeScoreTarget = false))
 							: ``;
@@ -1988,27 +2175,14 @@ async function StartAll() {
 					//? КОМАНДЫ
 
 					switch (text) {
-						case "St":
-						case "st":
-						case "Ые":
-						case "ые":
-							if (chatId == qu1z3xId) {
-								await bot
-									.sendMessage(chatId, "ㅤ")
-									.then(
-										(message) =>
-											(dataAboutUser.messageId = message.message_id)
-									);
-								menuHome(chatId);
-							}
-							break;
 						case "/restart":
 							if (chatId == qu1z3xId || chatId == jackId) {
 								await bot
 									.sendMessage(chatId, "ㅤ")
 									.then(
 										(message) =>
-											(dataAboutUser.messageId = message.message_id)
+											(dataAboutUser.messageId =
+												message.message_id)
 									);
 
 								menuHome(chatId);
@@ -2019,7 +2193,8 @@ async function StartAll() {
 								.sendMessage(chatId, "ㅤ")
 								.then(
 									(message) =>
-										(dataAboutUser.messageId = message.message_id)
+										(dataAboutUser.messageId =
+											message.message_id)
 								);
 
 							firstMeeting(chatId, 1);
@@ -2028,7 +2203,8 @@ async function StartAll() {
 							break;
 						case "":
 							break;
-						case "":
+						case "/start gameScore":
+							GameScore(chatId);
 							break;
 						case "":
 							break;
@@ -2078,7 +2254,11 @@ async function StartAll() {
 				}
 			} catch (error) {
 				console.log(error);
-				sendDataAboutError(chatId, dataAboutUser.login, `${String(error)}`);
+				sendDataAboutError(
+					chatId,
+					dataAboutUser.login,
+					`${String(error)}`
+				);
 			}
 		});
 
@@ -2088,7 +2268,9 @@ async function StartAll() {
 			const chatId = query.message.chat.id;
 			const data = query.data;
 
-			const dataAboutUser = usersData.find((obj) => obj.chatId === chatId);
+			const dataAboutUser = usersData.find(
+				(obj) => obj.chatId === chatId
+			);
 
 			if (dataAboutUser) {
 				dataAboutUser.messageId = query.message.message_id;
@@ -2196,11 +2378,13 @@ async function StartAll() {
 					matchId = parseInt(match[2]);
 
 					if (parseInt(match[1]) == 1) {
-						dataAboutUser.writeco1score = !dataAboutUser.writeco1score;
+						dataAboutUser.writeco1score =
+							!dataAboutUser.writeco1score;
 						dataAboutUser.writeco2score = false;
 					} else if (parseInt(match[1]) == 2) {
 						dataAboutUser.writeco1score = false;
-						dataAboutUser.writeco2score = !dataAboutUser.writeco2score;
+						dataAboutUser.writeco2score =
+							!dataAboutUser.writeco2score;
 					}
 
 					GameScoreCounting(chatId, matchId);
@@ -2249,7 +2433,9 @@ async function StartAll() {
 				}
 
 				if (data.includes("continueAndAddQuarterForMatchWithId")) {
-					match = data.match(/^continueAndAddQuarterForMatchWithId(\d+)$/);
+					match = data.match(
+						/^continueAndAddQuarterForMatchWithId(\d+)$/
+					);
 
 					matchId = parseInt(match[1]);
 
@@ -2328,7 +2514,8 @@ async function StartAll() {
 								dataAboutUser.matchesData.indexOf(
 									dataAboutUser.matchesData.find(
 										(obj) =>
-											obj.score == "0:0" && obj.quarterOfGame == 1
+											obj.score == "0:0" &&
+											obj.quarterOfGame == 1
 									)
 								)
 							]
@@ -2337,7 +2524,8 @@ async function StartAll() {
 								dataAboutUser.matchesData.indexOf(
 									dataAboutUser.matchesData.find(
 										(obj) =>
-											obj.score == "0:0" && obj.quarterOfGame == 1
+											obj.score == "0:0" &&
+											obj.quarterOfGame == 1
 									)
 								)
 							] = [];
@@ -2348,7 +2536,8 @@ async function StartAll() {
 								dataAboutUser.matchesData.indexOf(
 									dataAboutUser.matchesData.find(
 										(obj) =>
-											obj.score == "0:0" && obj.quarterOfGame == 1
+											obj.score == "0:0" &&
+											obj.quarterOfGame == 1
 									)
 								)
 							]
@@ -2358,7 +2547,7 @@ async function StartAll() {
 
 							dataAboutUser.matchesData.forEach(async (match) => {
 								if (match.isOver == false) {
-									await scoreHistoryButtons.push([
+									scoreHistoryButtons.push([
 										{
 											text: `${
 												match.sportNum == 1
@@ -2367,7 +2556,8 @@ async function StartAll() {
 															match.sportNum == 2
 																? "🏐"
 																: `${
-																		match.sportNum == 3
+																		match.sportNum ==
+																		3
 																			? "⚽"
 																			: `${
 																					match.sportNum ==
@@ -2384,7 +2574,7 @@ async function StartAll() {
 													  }`
 											} Продолжить ( ${match.score} ) - ${
 												match.quarterOfGame
-											}-й`,
+											}-я`,
 											callback_data: `matchWithId${match.matchId}`,
 										},
 									]);
@@ -2410,8 +2600,8 @@ async function StartAll() {
 							endOfGame(chatId, dataAboutUser.currentMatchId);
 						else Settings(chatId);
 						break;
-					case "moreAboutUs":
-						moreAboutUs(chatId);
+					case "digfusionInfo":
+						digfusionInfo(chatId);
 						break;
 					case "motivation":
 						Motivation(chatId);
